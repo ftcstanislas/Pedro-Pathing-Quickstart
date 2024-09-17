@@ -31,7 +31,7 @@ public class TeleOpEnhancements extends OpMode {
     private DcMotorEx rightRear;
 
     /**
-     * This initializes the drive motors as well as the Follower and motion Vectors.
+     * This initializes the MecanumDrivetrain.java motors as well as the Follower and motion Vectors.
      */
     @Override
     public void init() {
@@ -51,7 +51,7 @@ public class TeleOpEnhancements extends OpMode {
     }
 
     /**
-     * This runs the OpMode. This is only drive control with Pedro Pathing live centripetal force
+     * This runs the OpMode. This is only MecanumDrivetrain.java control with Pedro Pathing live centripetal force
      * correction.
      */
     @Override

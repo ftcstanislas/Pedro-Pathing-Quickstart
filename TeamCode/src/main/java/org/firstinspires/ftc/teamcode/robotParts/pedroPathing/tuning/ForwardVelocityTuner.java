@@ -55,7 +55,7 @@ public class ForwardVelocityTuner extends OpMode {
     private boolean end;
 
     /**
-     * This initializes the drive motors as well as the cache of velocities and the FTC Dashboard
+     * This initializes the MecanumDrivetrain.java motors as well as the cache of velocities and the FTC Dashboard
      * telemetry.
      */
     @Override
@@ -97,7 +97,7 @@ public class ForwardVelocityTuner extends OpMode {
     }
 
     /**
-     * This starts the OpMode by setting the drive motors to run forward at full power.
+     * This starts the OpMode by setting the MecanumDrivetrain.java motors to run forward at full power.
      */
     @Override
     public void start() {

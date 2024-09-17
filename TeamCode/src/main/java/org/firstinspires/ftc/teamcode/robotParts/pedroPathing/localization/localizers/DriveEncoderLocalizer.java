@@ -19,7 +19,7 @@ import org.firstinspires.ftc.teamcode.robotParts.pedroPathing.util.NanoTimer;
 
 /**
  * This is the DriveEncoderLocalizer class. This class extends the Localizer superclass and is a
- * localizer that uses the drive encoder set up.
+ * localizer that uses the MecanumDrivetrain.java encoder set up.
  *
  * @author Anyi Lin - 10158 Scott's Bots
  * @version 1.0, 4/2/2024

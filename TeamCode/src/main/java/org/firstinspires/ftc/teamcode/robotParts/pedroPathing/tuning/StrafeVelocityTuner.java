@@ -55,7 +55,7 @@ public class StrafeVelocityTuner extends OpMode {
     private boolean end;
 
     /**
-     * This initializes the drive motors as well as the cache of velocities and the FTC Dashboard
+     * This initializes the MecanumDrivetrain.java motors as well as the cache of velocities and the FTC Dashboard
      * telemetry.
      */
     @Override
@@ -96,7 +96,7 @@ public class StrafeVelocityTuner extends OpMode {
     }
 
     /**
-     * This starts the OpMode by setting the drive motors to run right at full power.
+     * This starts the OpMode by setting the MecanumDrivetrain.java motors to run right at full power.
      */
     @Override
     public void start() {

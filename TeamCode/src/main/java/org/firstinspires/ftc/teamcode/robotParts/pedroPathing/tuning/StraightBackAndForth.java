@@ -16,7 +16,7 @@ import org.firstinspires.ftc.teamcode.robotParts.pedroPathing.pathGeneration.Poi
  * This is the StraightBackAndForth autonomous OpMode. It runs the robot in a specified distance
  * straight forward. On reaching the end of the forward Path, the robot runs the backward Path the
  * same distance back to the start. Rinse and repeat! This is good for testing a variety of Vectors,
- * like the drive Vector, the translational Vector, and the heading Vector. Remember to test your
+ * like the MecanumDrivetrain.java Vector, the translational Vector, and the heading Vector. Remember to test your
  * tunings on CurvedBackAndForth as well, since tunings that work well for straight lines might
  * have issues going in curves.
  *

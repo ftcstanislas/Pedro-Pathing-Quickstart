@@ -18,10 +18,10 @@ public class DriveVectorScaler {
 
     /**
      * This creates a new DriveVectorScaler, which takes in various movement vectors and outputs
-     * the wheel drive powers necessary to move in the intended direction, given the true movement
+     * the wheel MecanumDrivetrain.java powers necessary to move in the intended direction, given the true movement
      * vector for the front left mecanum wheel.
      *
-     * @param frontLeftVector this is the front left mecanum wheel's preferred drive vector.
+     * @param frontLeftVector this is the front left mecanum wheel's preferred MecanumDrivetrain.java vector.
      */
     public DriveVectorScaler(Vector frontLeftVector) {
         Vector copiedFrontLeftVector = MathFunctions.normalizeVector(frontLeftVector);
@@ -80,7 +80,7 @@ public class DriveVectorScaler {
                 truePathingVectors[0] = MathFunctions.subtractVectors(correctivePower, MathFunctions.scalarMultiplyVector(headingPower, headingScalingFactor));
                 truePathingVectors[1] = MathFunctions.addVectors(correctivePower, MathFunctions.scalarMultiplyVector(headingPower, headingScalingFactor));
             } else {
-                // if we're here then we can add on some drive power but scaled down to 1
+                // if we're here then we can add on some MecanumDrivetrain.java power but scaled down to 1
                 Vector leftSideVectorWithPathing = MathFunctions.addVectors(leftSideVector, pathingPower);
                 Vector rightSideVectorWithPathing = MathFunctions.addVectors(rightSideVector, pathingPower);
 

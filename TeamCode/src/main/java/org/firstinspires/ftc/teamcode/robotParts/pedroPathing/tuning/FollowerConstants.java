@@ -28,7 +28,7 @@ public class FollowerConstants {
     public static String rightFrontMotorName = "rightFront";
     public static String rightRearMotorName = "rightRear";
 
-    // This section is for setting the actual drive vector for the front left wheel, if the robot
+    // This section is for setting the actual MecanumDrivetrain.java vector for the front left wheel, if the robot
     // is facing a heading of 0 radians with the wheel centered at (0,0)
     private static double xMovement = 81.34056;
     private static double yMovement = 65.43028;
@@ -73,10 +73,10 @@ public class FollowerConstants {
             0.6,
             0);
 
-    // Feed forward constant added on to the drive PIDF
+    // Feed forward constant added on to the MecanumDrivetrain.java PIDF
     public static double drivePIDFFeedForward = 0.01;
 
-    // Kalman filter parameters for the drive error Kalman filter
+    // Kalman filter parameters for the MecanumDrivetrain.java error Kalman filter
     public static KalmanFilterParameters driveKalmanFilterParameters = new KalmanFilterParameters(
             6,
             1);
@@ -153,7 +153,7 @@ public class FollowerConstants {
 
 
     // These activate / deactivate the secondary PIDs. These take over at errors under a set limit for
-    // the translational, heading, and drive PIDs.
+    // the translational, heading, and MecanumDrivetrain.java PIDs.
     public static boolean useSecondaryTranslationalPID = false;
     public static boolean useSecondaryHeadingPID = false;
     public static boolean useSecondaryDrivePID = false;
@@ -195,10 +195,10 @@ public class FollowerConstants {
     public static double secondaryHeadingPIDFFeedForward = 0.01;
 
 
-    // the limit at which the heading PIDF switches between the main and secondary drive PIDFs
+    // the limit at which the heading PIDF switches between the main and secondary MecanumDrivetrain.java PIDFs
     public static double drivePIDFSwitch = 20;
 
-    // Secondary drive PIDF coefficients
+    // Secondary MecanumDrivetrain.java PIDF coefficients
     public static CustomFilteredPIDFCoefficients secondaryDrivePIDFCoefficients = new CustomFilteredPIDFCoefficients(
             0.02,
             0,
@@ -206,6 +206,6 @@ public class FollowerConstants {
             0.6,
             0);
 
-    // Feed forward constant added on to the secondary drive PIDF
+    // Feed forward constant added on to the secondary MecanumDrivetrain.java PIDF
     public static double secondaryDrivePIDFFeedForward = 0.01;
 }

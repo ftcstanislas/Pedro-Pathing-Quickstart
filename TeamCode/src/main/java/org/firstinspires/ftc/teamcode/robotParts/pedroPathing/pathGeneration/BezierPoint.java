@@ -38,7 +38,7 @@ public class BezierPoint extends BezierCurve {
     /**
      * This supposedly returns the unit tangent Vector at the end of the path, but since there is
      * no end tangent of a point, this returns a zero Vector instead. Holding BezierPoints in the
-     * Follower doesn't use the drive Vector, so the end tangent Vector is not needed or truly used.
+     * Follower doesn't use the MecanumDrivetrain.java Vector, so the end tangent Vector is not needed or truly used.
      *
      * @return returns the zero Vector.
      */

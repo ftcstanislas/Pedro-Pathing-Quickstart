@@ -154,7 +154,7 @@ public class Follower {
 
     /**
      * This initializes the follower.
-     * In this, the DriveVectorScaler and PoseUpdater is instantiated, the drive motors are
+     * In this, the DriveVectorScaler and PoseUpdater is instantiated, the MecanumDrivetrain.java motors are
      * initialized and their behavior is set, and the variables involved in approximating first and
      * second derivatives for teleop are set.
      */
@@ -198,7 +198,7 @@ public class Follower {
     }
 
     /**
-     * This handles the limiting of the drive powers array to the max power.
+     * This handles the limiting of the MecanumDrivetrain.java powers array to the max power.
      */
     public void limitDrivePowers() {
         for (int i = 0; i < drivePowers.length; i++) {
@@ -418,7 +418,7 @@ public class Follower {
     }
 
     /**
-     * This starts teleop drive control.
+     * This starts teleop MecanumDrivetrain.java control.
      */
     public void startTeleopDrive() {
         breakFollowing();
@@ -509,11 +509,11 @@ public class Follower {
     }
 
     /**
-     * This sets the teleop drive vectors. This defaults to robot centric.
+     * This sets the teleop MecanumDrivetrain.java vectors. This defaults to robot centric.
      *
-     * @param forwardDrive determines the forward drive vector for the robot in teleop. In field centric
+     * @param forwardDrive determines the forward MecanumDrivetrain.java vector for the robot in teleop. In field centric
      *                     movement, this is the x-axis.
-     * @param lateralDrive determines the lateral drive vector for the robot in teleop. In field centric
+     * @param lateralDrive determines the lateral MecanumDrivetrain.java vector for the robot in teleop. In field centric
      *                     movement, this is the y-axis.
      * @param heading determines the heading vector for the robot in teleop.
      */
@@ -522,11 +522,11 @@ public class Follower {
     }
 
     /**
-     * This sets the teleop drive vectors.
+     * This sets the teleop MecanumDrivetrain.java vectors.
      *
-     * @param forwardDrive determines the forward drive vector for the robot in teleop. In field centric
+     * @param forwardDrive determines the forward MecanumDrivetrain.java vector for the robot in teleop. In field centric
      *                     movement, this is the x-axis.
-     * @param lateralDrive determines the lateral drive vector for the robot in teleop. In field centric
+     * @param lateralDrive determines the lateral MecanumDrivetrain.java vector for the robot in teleop. In field centric
      *                     movement, this is the y-axis.
      * @param heading determines the heading vector for the robot in teleop.
      * @param robotCentric sets if the movement will be field or robot centric
@@ -662,7 +662,7 @@ public class Follower {
      * <p>
      * Note: This vector is clamped to be at most 1 in magnitude.
      *
-     * @return returns the drive vector.
+     * @return returns the MecanumDrivetrain.java vector.
      */
     public Vector getDriveVector() {
         if (!useDrive) return new Vector();
@@ -937,9 +937,9 @@ public class Follower {
         telemetry.addData("translational vector heading", translationalVector.getMagnitude());
         telemetry.addData("centripetal vector magnitude", centripetalVector.getMagnitude());
         telemetry.addData("centripetal vector heading", centripetalVector.getTheta());
-        telemetry.addData("drive error", driveError);
-        telemetry.addData("drive vector magnitude", driveVector.getMagnitude());
-        telemetry.addData("drive vector heading", driveVector.getTheta());
+        telemetry.addData("MecanumDrivetrain.java error", driveError);
+        telemetry.addData("MecanumDrivetrain.java vector magnitude", driveVector.getMagnitude());
+        telemetry.addData("MecanumDrivetrain.java vector heading", driveVector.getTheta());
         telemetry.addData("x", getPose().getX());
         telemetry.addData("y", getPose().getY());
         telemetry.addData("heading", getPose().getHeading());
