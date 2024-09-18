@@ -8,11 +8,9 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 public class STTslides {
 
-    public DcMotorEx slide;
-    public DcMotorEx outtake;
+    public DcMotorEx slide,outtake;
 
-    private Servo wrist;
-    private Servo claw;
+    private Servo wrist,claw,intake;
 
     public void init(HardwareMap map) {
         slide = map.get(DcMotorEx.class, "slide");
@@ -24,6 +22,7 @@ public class STTslides {
 
         wrist = map.get(Servo.class, "wrist");
         claw = map.get(Servo.class, "claw");
+        intake = map.get(Servo.class, "intake");
     }
 
     public void wrist(double position){wrist.setPosition(position);}
@@ -32,4 +31,5 @@ public class STTslides {
     public void move(double slidePowerLocal){slide.setPower(slidePowerLocal);}
 
     public void run(double outtakePowerLocal){outtake.setPower(outtakePowerLocal);}
+    public void intake(double pos) {intake.setPosition(pos);}
 }

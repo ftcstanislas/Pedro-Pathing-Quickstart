@@ -33,6 +33,12 @@ public class STTdrive extends LinearOpMode {
             double slidePos = slides.slide.getCurrentPosition();
             double outtakePower = (gamepad2.right_trigger - gamepad2.left_trigger);
 
+            if(gamepad1.left_bumper) {
+                slides.intake(1.0);
+            } else if(gamepad1.right_bumper) {
+                slides.intake(0.77);
+            }
+
             if (slidePos > 0 && slidePos < 2300) {
                 slides.move(slidePower);
             } else if (slidePos < 0 && slidePower > 0){
