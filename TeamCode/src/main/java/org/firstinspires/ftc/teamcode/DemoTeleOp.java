@@ -37,7 +37,7 @@ public class DemoTeleOp extends LinearOpMode {
 
 
     @Override
-    public void runOpMode() throws InterruptedException {
+    public void runOpMode() {
         /*
             Sets the hubs to using BulkReads. Any read will read all non-I2C sensors from a hub at once.
          */
