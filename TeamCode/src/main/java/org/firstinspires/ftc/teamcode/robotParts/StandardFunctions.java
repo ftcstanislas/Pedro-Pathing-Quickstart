@@ -5,8 +5,8 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-public class MecanumDrivetrain extends StandardFunctions {
-    public DcMotorEx FrontL, FrontR,BackL,BackR;
+public class StandardFunctions {
+    public DcMotorEx FrontL,FrontR,BackL,BackR;
 
     int j;
 
@@ -41,13 +41,12 @@ public class MecanumDrivetrain extends StandardFunctions {
         BackR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     }
 
-    @Deprecated
     public void drive(double forward, double right, double rotate) {
-        double rotateMultiplier = 0.5;
-        double leftFrontPower = forward + right + rotateMultiplier*rotate;
-        double rightFrontPower = forward - right - rotateMultiplier*rotate;
-        double rightRearPower = forward + right - rotateMultiplier*rotate;
-        double leftRearPower = forward - right + rotateMultiplier*rotate;
+        double rotatePower = 0.5;
+        double leftFrontPower = forward + right + rotatePower*rotate;
+        double rightFrontPower = forward - right - rotatePower*rotate;
+        double rightRearPower = forward + right - rotatePower*rotate;
+        double leftRearPower = forward - right + rotatePower*rotate;
         double maxPower = 1.0;
 
         maxPower = Math.max(maxPower, Math.abs(leftFrontPower));
@@ -202,4 +201,75 @@ public class MecanumDrivetrain extends StandardFunctions {
         BackL.setPower(motorPowers[2]);
         BackR.setPower(motorPowers[3]);
     }
+    /**
+     * TODO: documentation, EN
+     * @param cartesian
+     * @param normalise
+     * @return
+     */
+    public double[] toPolar(double[] cartesian, boolean normalise) {
+        return toPolar(cartesian[0],cartesian[1],normalise);
+    }
+
+    /**
+     * TODO: documentation, EN
+     * @param cartesian
+     * @return
+     */
+    public double[] toPolar(double[] cartesian) {
+        return toPolar(cartesian[0],cartesian[1],false);
+    }
+
+    /**
+     * TODO: documentation, EN
+     * @param x
+     * @param y
+     * @return
+     */
+    public double[] toPolar(double x, double y) {
+        return toPolar(x, y, false);
+    }
+
+    /**
+     * TODO: documentation, EN
+     * @param x
+     * @param y
+     * @param normalise
+     * @return
+     */
+    public double[] toPolar(double x, double y, boolean normalise) {
+        double r = Math.sqrt(x * x + y * y);
+        double theta = Math.atan2(y,x);
+        if (normalise) {
+            while (theta > Math.PI) {
+                theta -= 2 * Math.PI;
+            }
+            while (theta <= -Math.PI) {
+                theta += 2 * Math.PI;
+            }
+        }
+        return new double[]{r,theta};
+    }
+
+    /**
+     * TODO: documentation, EN
+     * @param polar
+     * @return
+     */
+    public double[] toCartesian(double[] polar) {
+        return toCartesian(polar[0],polar[1]);
+    }
+
+    /**
+     * TODO: documentation, EN
+     * @param r
+     * @param theta
+     * @return
+     */
+    public double[] toCartesian(double r, double theta) {
+        double x = r * Math.cos(theta);
+        double y = r * Math.sin(theta);
+        return new double[]{x,y};
+    }
+    public double exaggerateJoystick(double r) {return Math.sin(2*Math.PI*r) / 9 + r;}
 }
