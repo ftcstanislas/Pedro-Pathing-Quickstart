@@ -29,6 +29,8 @@ public class STTdrive extends LinearOpMode {
 
             boolean clawOn = gamepad1.x;
             boolean clawOff = gamepad1.y;
+            boolean wristOn = gamepad1.dpad_up;
+            boolean wristOff = gamepad1.dpad_down;
 
             double slidePower = (gamepad1.right_trigger - gamepad1.left_trigger);
             double slidePos = outtake.slide.getCurrentPosition();
@@ -54,12 +56,18 @@ public class STTdrive extends LinearOpMode {
                 outtake.claw(0);
             }
 
-            intake.run(gamepad2.left_stick_y);
-            intake.wrist(gamepad2.right_stick_x);
+            if (wristOn) {
+                intake.wrist(0.69);
+            } else if (wristOff) {
+                intake.wrist(0);
+            }
+
+            intake.run(gamepad1.left_trigger-gamepad1.right_trigger);
 
             drivetrain.drive(x, y, rotate);
             outtake.moveOuttake(outtakePower);
             telemetry.addData("slidehoogte: ",slidePos);
+            telemetry.addData("wristpos",intake.wrist.getPosition());
             telemetry.update();
         }
     }
