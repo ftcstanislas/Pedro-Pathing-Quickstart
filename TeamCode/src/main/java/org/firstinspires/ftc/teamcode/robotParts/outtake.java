@@ -8,26 +8,23 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 public class outtake {
 
-    public DcMotorEx slide,outtake;
+    public DcMotorEx outtakeLeft, outtakeRight;
 
     private Servo claw,intake;
 
     public void init(HardwareMap map) {
-        slide = map.get(DcMotorEx.class, "slide");
-        slide.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        outtakeLeft = map.get(DcMotorEx.class, "outtakeLeft");
+        outtakeLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        outtakeLeft.setDirection(DcMotorSimple.Direction.REVERSE);
 
-        outtake = map.get(DcMotorEx.class, "outtake");
-        outtake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        outtake.setDirection(DcMotorSimple.Direction.REVERSE);
-
-        claw = map.get(Servo.class, "claw");
-        intake = map.get(Servo.class, "intake");
+        outtakeRight = map.get(DcMotorEx.class, "outtakeRight");
+        outtakeRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        outtakeRight.setDirection(DcMotorSimple.Direction.FORWARD);
     }
     public void claw(double position){claw.setPosition(position);}
 
-    public void moveSlide(double slidePowerLocal){slide.setPower(slidePowerLocal);}
-
-    public void moveOuttake(double outtakePowerLocal){outtake.setPower(outtakePowerLocal);}
-
-    public void intake(double pos) {intake.setPosition(pos);}
+    public void moveOuttake(double outtakePowerLocal){
+        outtakeLeft.setPower(outtakePowerLocal);
+        outtakeRight.setPower(outtakePowerLocal);
+    }
 }

@@ -29,26 +29,8 @@ public class STTdrive extends LinearOpMode {
 
             boolean clawOn = gamepad1.x;
             boolean clawOff = gamepad1.y;
-            boolean wristOn = gamepad1.dpad_up;
-            boolean wristOff = gamepad1.dpad_down;
 
-            double slidePower = (gamepad1.right_trigger - gamepad1.left_trigger);
-            double slidePos = outtake.slide.getCurrentPosition();
             double outtakePower = (gamepad2.right_trigger - gamepad2.left_trigger);
-
-            if(gamepad1.left_bumper) {
-                outtake.intake(1.0);
-            } else if(gamepad1.right_bumper) {
-                outtake.intake(0.77);
-            }
-
-            if (slidePos > 0 && slidePos < 2300) {
-                outtake.moveSlide(slidePower);
-            } else if (slidePos < 0 && slidePower > 0){
-                outtake.moveSlide(slidePower);
-            } else if (slidePos > 2300 && slidePower < 0) {
-                outtake.moveSlide(slidePower);
-            }
 
             if (clawOn) {
                 outtake.claw(0.4);
@@ -56,18 +38,11 @@ public class STTdrive extends LinearOpMode {
                 outtake.claw(0);
             }
 
-            if (wristOn) {
-                intake.wrist(0.69);
-            } else if (wristOff) {
-                intake.wrist(0);
-            }
+            intake.run(gamepad2.left_stick_y);
+            intake.wrist(gamepad2.right_stick_x);
 
-            intake.run(gamepad1.left_trigger-gamepad1.right_trigger);
-
-            drivetrain.drive(x, y, rotate);
+            drivetrain.robotCentric(x, y, rotate);
             outtake.moveOuttake(outtakePower);
-            telemetry.addData("slidehoogte: ",slidePos);
-            telemetry.addData("wristpos",intake.wrist.getPosition());
             telemetry.update();
         }
     }

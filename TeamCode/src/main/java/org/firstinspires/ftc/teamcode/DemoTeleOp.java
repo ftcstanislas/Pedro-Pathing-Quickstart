@@ -187,7 +187,7 @@ public class DemoTeleOp extends LinearOpMode {
              */
             driveVector = drive.toPolar(currentGamepad1.left_stick_x,-currentGamepad1.left_stick_y);
             driveVector[0] = drive.exaggerateJoystick(driveVector[0]);
-            drive.drive(driveVector,currentGamepad1.right_stick_x);
+            drive.robotCentric(driveVector,currentGamepad1.right_stick_x);
 
 
 

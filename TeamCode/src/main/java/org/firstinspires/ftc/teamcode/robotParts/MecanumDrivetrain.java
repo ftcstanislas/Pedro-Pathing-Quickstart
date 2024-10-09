@@ -10,6 +10,8 @@ public class MecanumDrivetrain extends StandardFunctions {
 
     int j;
 
+    public double[] driveVector;
+
     final double
             //TODO: tune angle
             angle = Math.atan(Math.sqrt(2)),
@@ -42,7 +44,7 @@ public class MecanumDrivetrain extends StandardFunctions {
     }
 
     @Deprecated
-    public void drive(double forward, double right, double rotate) {
+    public void robotCentric(double forward, double right, double rotate) {
         double rotateMultiplier = 0.5;
         double leftFrontPower = forward + right + rotateMultiplier*rotate;
         double rightFrontPower = forward - right - rotateMultiplier*rotate;
@@ -65,7 +67,8 @@ public class MecanumDrivetrain extends StandardFunctions {
      * @param values An array containing a drivePower, driveAngle and rotatePower.
      * @see <a href="#drive(double[], double)">drive()</a>, values follows the same limitations.
      */
-    public void drive(double[] values) {drive(new double[] {values[0], values[1]}, values[2]);}
+    public void robotCentric(double[] values) {
+        robotCentric(new double[] {values[0], values[1]}, values[2]);}
 
     /**
      * <p>This method does the kinematics to transfer a drive vector and a rotate power into usable motor powers for a mecanum drivetrain.
@@ -83,9 +86,9 @@ public class MecanumDrivetrain extends StandardFunctions {
      * @param drivePower has to be a polar vector with two values: r and theta. R is a number between -1 and 1, but preferably between 0 and 1.
      *                   Theta is the angle, in radians, between the vector and the positive x-axis.
      * @param rotatePower should be an already calculated power, preferably using a PID.
-     * @see <a href="#unoptimizedDrive(double[], double)">unoptimisedDrive</a>, as it may be slightly more readable.
+     * @see <a href="#unoptimizedDrive(double[], double)">unoptimizedDrive</a>, as it may be slightly more readable.
      */
-    public void drive(double[] drivePower, double rotatePower) {
+    public void robotCentric(double[] drivePower, double rotatePower) {
         // Normalizes drivePower theta, because the math only works between -90 and 270 degrees (in radians).
         while (drivePower[1] > 1.5 * Math.PI) {
             drivePower[1] -= 2 * Math.PI;
@@ -158,7 +161,7 @@ public class MecanumDrivetrain extends StandardFunctions {
     }
 
     /**
-     * @see <a href="#drive(double[], double)">drive(double[], double)</a>. This method does the same thing in a slightly more comprehensible, but slower way.
+     * @see <a href="#robotCentric(double[], double)">robotCentric(double[], double)</a>. This method does the same thing in a slightly more comprehensible, but slower way.
      */
     @Deprecated
     public void unoptimizedDrive(double[] drivePower, double rotatePower) {
