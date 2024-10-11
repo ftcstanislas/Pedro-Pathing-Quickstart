@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.teamcode.robotParts.MecanumDrivetrain;
 import org.firstinspires.ftc.teamcode.robotParts.intake;
 import org.firstinspires.ftc.teamcode.robotParts.outtake;
 
@@ -27,7 +26,7 @@ public class intakeTest extends LinearOpMode {
             else if (gamepad2.b) intake.wrist(0.45);
             if (gamepad2.x) intake.setScissor(1.0);
             else if (gamepad2.y) intake.setScissor(0.75);
-            outtake.moveOuttake(gamepad1.left_stick_y);
+            outtake.moveBar(gamepad1.left_stick_y);
 
             telemetry.addData("outtakeLeft power", gamepad1.left_stick_y);
             telemetry.addData("intake power: ",intake.CRLeft.getPower());

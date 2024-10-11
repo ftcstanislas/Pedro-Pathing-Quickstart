@@ -23,8 +23,8 @@ public class MecanumDrivetrain extends StandardFunctions {
             baseRVector = toPolar(-xConstant, yConstant),
             motorWeights = {1.0,1.0,1.0,1.0};
 
-    double yL,yR,minYValue,powerMultiplier,maxPower;
-    double[]
+    public double yL,yR,minYValue,powerMultiplier,maxPower;
+    public double[]
             motorPowers = {0,0,0,0},
             LVector,RVector,sumVector = {0,0};
 
@@ -146,8 +146,9 @@ public class MecanumDrivetrain extends StandardFunctions {
         motorPowers[3] = (LVector[0] + rotatePower) * motorWeights[3];
 
         // All motors are scaled in such a way that the largest power is the same value as the length of the drivePower parameter.
-        maxPower = Math.max(Math.abs(LVector[0]), Math.abs(RVector[0]));
-        maxPower = Math.max(Math.abs(maxPower + rotatePower), Math.abs(maxPower - rotatePower));
+        maxPower = Math.max(Math.abs(motorPowers[0]), Math.abs(motorPowers[1]));
+        maxPower = Math.max(maxPower, Math.abs(motorPowers[2]));
+        maxPower = Math.max(maxPower, Math.abs(motorPowers[3]));
         for (int i = 0; i < 4; i++) {
             motorPowers[i] /= (maxPower*drivePower[0]);
         }

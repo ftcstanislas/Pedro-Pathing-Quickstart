@@ -5,19 +5,20 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.robotParts.MecanumDrivetrain;
-import org.firstinspires.ftc.teamcode.robotParts.intake;
 import org.firstinspires.ftc.teamcode.robotParts.outtake;
+import org.firstinspires.ftc.teamcode.robotParts.intake;
 import org.firstinspires.ftc.teamcode.robotParts.servoPositions;
 
 import java.util.List;
 
-@TeleOp(name = "DriveTest",group = "TeleOp")
-public class driveTest extends LinearOpMode {
+@TeleOp(name = "sequenceTest",group = "TeleOp")
+public class sequenceTest extends LinearOpMode {
     intake intake = new intake();
     outtake outtake = new outtake();
     MecanumDrivetrain drive = new MecanumDrivetrain();
 
     double[] driveVector;
+    intakeSequence state = intakeSequence.idle;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -34,14 +35,25 @@ public class driveTest extends LinearOpMode {
         if (isStopRequested()) return;
 
         while (opModeIsActive()) {
-            intake.run(gamepad1.left_trigger - gamepad1.right_trigger);
-
-            if (gamepad1.dpad_left || gamepad1.dpad_right) intake.wrist(servoPositions.wristTransfer.getPosition());
-            else if (gamepad1.dpad_down) intake.wrist(servoPositions.wristIntake.getPosition());
-            else if (gamepad1.dpad_up) intake.wrist(servoPositions.wristAway.getPosition());
-
-            if (gamepad1.x && Math.abs(intake.wrist.getPosition() - servoPositions.wristIntake.getPosition()) > 0.05) intake.setScissor(servoPositions.scissorRetract.getPosition());
-            else if (gamepad1.y) intake.setScissor(servoPositions.scissorExtend.getPosition());
+            switch (state) {
+                case idle:
+                    if (gamepad1.x) {
+                        state = intakeSequence.getReady;
+                        intake.wrist.setPosition(servoPositions.wristTransfer.getPosition());
+                    }
+                    break;
+                case getReady:
+                    if (Math.abs(intake.wrist.getPosition() - servoPositions.wristTransfer.getPosition()) > 0.05) {
+                        state = intakeSequence.extend;
+                        intake.scissor.setPosition(servoPositions.scissorExtend.getPosition());
+                    }
+                    break;
+                case extend:
+                    if (Math.abs(intake.scissor.getPosition() - servoPositions.scissorExtend.getPosition()) > 0.05) {
+                        state = intakeSequence.drop;
+                        intake.wrist.setPosition(servoPositions.wristIntake.getPosition());
+                    }
+            }
 
             outtake.moveBar(gamepad2.left_trigger - gamepad2.right_trigger);
 
