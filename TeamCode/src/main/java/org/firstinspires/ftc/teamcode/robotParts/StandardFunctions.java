@@ -1,45 +1,6 @@
 package org.firstinspires.ftc.teamcode.robotParts;
 
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.HardwareMap;
-
 public class StandardFunctions {
-    public DcMotorEx FrontL,FrontR,BackL,BackR;
-
-    int j;
-
-    final double
-            //TODO: tune angle
-            angle = Math.atan(Math.sqrt(2)),
-            xConstant = toCartesian(1,angle)[0],
-            yConstant = toCartesian(1,angle)[1];
-
-    final double[]
-            baseLVector = toPolar(xConstant, yConstant),
-            baseRVector = toPolar(-xConstant, yConstant),
-            motorWeights = {1.0,1.0,1.0,1.0};
-
-    double yL,yR,minYValue,powerMultiplier,maxPower;
-    double[]
-            motorPowers = {0,0,0,0},
-            LVector,RVector,sumVector = {0,0};
-
-    public void init(HardwareMap map) {
-        FrontL = map.get(DcMotorEx.class, "left_front");
-        FrontR = map.get(DcMotorEx.class, "right_front");
-        BackL = map.get(DcMotorEx.class, "left_back");
-        BackR = map.get(DcMotorEx.class, "right_back");
-
-        FrontR.setDirection(DcMotorSimple.Direction.REVERSE);
-        BackR.setDirection(DcMotorSimple.Direction.REVERSE);
-
-        FrontL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        BackL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        FrontR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        BackR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-    }
     /**
      * TODO: documentation, EN
      * @param cartesian
@@ -110,5 +71,16 @@ public class StandardFunctions {
         double y = r * Math.sin(theta);
         return new double[]{x,y};
     }
+    /**
+     * Alts:
+     * (r*r+r)/2 (only positive)
+     * (r*r*r+r)/2
+     * Math.sin(2*Math.PI*r)/12 + r
+     * Math.sin(2*Math.PI*r)/8 + r*r
+     * @param r
+     * @return
+     */
     public double exaggerateJoystick(double r) {return Math.sin(2*Math.PI*r) / 9 + r;}
+
+    //TODO: one hardwareMap list for all the stuff on the robot, including ports
 }
