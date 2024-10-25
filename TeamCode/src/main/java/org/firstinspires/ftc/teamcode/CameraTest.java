@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -10,11 +12,10 @@ import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 
 import java.util.ArrayList;
-
 @TeleOp(name = "CameraTest",group = "TeleOp")
 public class CameraTest extends LinearOpMode {
     OpenCvCamera camera;
-    SampleDetectionPipeline sampleDetectionPipeline = new SampleDetectionPipeline();
+    SampleDetectionPipeline sampleDetectionPipeline = new SampleDetectionPipeline(true);
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -34,7 +35,7 @@ public class CameraTest extends LinearOpMode {
         });
         telemetry.setMsTransmissionInterval(50);
         while (!isStarted() && !isStopRequested()) {
-            ArrayList<SampleDetectionPipeline.AnalyzedStone> currentDetections = sampleDetectionPipeline.getDetectedStones();
+            ArrayList<SampleDetectionPipeline.Sample> currentDetections = sampleDetectionPipeline.getDetectedStones();
         }
 
         if (isStopRequested()) return;

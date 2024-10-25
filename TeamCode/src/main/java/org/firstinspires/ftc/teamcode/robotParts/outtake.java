@@ -10,7 +10,7 @@ public class outtake {
 
     public DcMotorEx outtakeLeft, outtakeRight, winch;
 
-    public Servo outtake;
+    public Servo outtake, claw;
 
     public void init(HardwareMap map) {
         outtakeLeft = map.get(DcMotorEx.class, "outtakeLeft");
@@ -27,6 +27,9 @@ public class outtake {
 
         outtake = map.get(Servo.class, "outtake");
         outtake.setPosition(servoPositions.outtakeInit.getPosition());
+
+        claw = map.get(Servo.class, "claw");
+        outtake.setPosition(servoPositions.clawGrip.getPosition());
     }
     public void setOuttake(double position){outtake.setPosition(position);}
 
@@ -36,4 +39,6 @@ public class outtake {
     }
 
     public void setWinch(double power) {winch.setPower(power);}
+
+    public void setClaw(double position) {claw.setPosition(position);}
 }
