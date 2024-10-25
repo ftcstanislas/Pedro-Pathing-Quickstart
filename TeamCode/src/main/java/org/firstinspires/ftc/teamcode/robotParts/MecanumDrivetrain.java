@@ -75,7 +75,7 @@ public class MecanumDrivetrain extends StandardFunctions {
      * It also corrects for the friction in mecanum wheels which causes forward to be quicker than strafe.
      * Within the method, there is documentation for what each line does.
      * If you want a visual explanation, check out Wolfpack Machina's <a href="https://www.youtube.com/watch?v=ri06orPFaKo&t=135s">"Wolfpack Movement Breakdown</a> on Youtube,
-     * from 2:15 to 4:34. We do not do that last thing with the scalar, as our kinematics do not get separate perpendicular powers, but only one drivePower.
+     * from 2:15 to 4:34. We do not do that last thing with the scalar, as our kinematics do not get separate perpendicular powers, but only use one drivePower.
      * It can receive these parameters from the pathFollower, the pidFollower, or a driver in Tele-Op.</p><p></p>
      * <h2>Tuning</h2>
      * <h3>Step 1</h3>
@@ -84,9 +84,9 @@ public class MecanumDrivetrain extends StandardFunctions {
      * <h3>Step 2</h3>
      * <p>Drive forwards at full speed, and drive backwards at full speed. Your angle value is the ratio forward / strafe, which is the inverse tangent.</p>
      * @param drivePower has to be a polar vector with two values: r and theta. R is a number between -1 and 1, but preferably between 0 and 1.
-     *                   Theta is the angle, in radians, between the vector and the positive x-axis.
-     * @param rotatePower should be an already calculated power, preferably using a PID.
-     * @see <a href="#unoptimizedDrive(double[], double)">unoptimizedDrive</a>, as it may be slightly more readable.
+     *                   Theta is the angle, in radians, between the vector and the positive x-axis. 0 is forwards, 0.5 PI is to the left, PI is backwards, 1.5 PI is to the right.
+     * @param rotatePower should be an already calculated power, preferably using a PID. Positive rotatePower means a counterclockwise rotation. TODO: idk if that true.
+     * @see <a href="#unoptimizedDrive(double[], double)">unoptimisedDrive</a>, as it may be slightly more readable.
      */
     public void robotCentric(double[] drivePower, double rotatePower) {
         // Normalizes drivePower theta, because the math only works between -90 and 270 degrees (in radians).
@@ -130,9 +130,9 @@ public class MecanumDrivetrain extends StandardFunctions {
 
         // SumVector theta should be exactly the drivePower theta, but r might differ.
         // We then multiply by that difference, so that the sumVector is completely equal to the driveVector.
-        // I have a feeling you can delete or optimise this bit, because we correct for the same thing again later and the drive vectors aren't changed from the beginning.
-        // If you can delete this, do, because the calculation sucks.
         //TODO: can you live without this correction
+        // I have a feeling you can delete or optimise this bit, because we correct for the same thing again later and the drive vectors aren't changed from the beginning.
+        // If you can delete this, do, because extra calculation sucks.
         powerMultiplier = drivePower[0]/sumVector[0];
         LVector[0] = LVector[0] * powerMultiplier;
         RVector[0] = RVector[0] * powerMultiplier;
