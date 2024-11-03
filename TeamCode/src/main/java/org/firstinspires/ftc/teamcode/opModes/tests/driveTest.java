@@ -1,24 +1,25 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.opModes.tests;
 
 import com.qualcomm.hardware.lynx.LynxModule;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.robotParts.MecanumDrivetrain;
-import org.firstinspires.ftc.teamcode.robotParts.outtake;
 import org.firstinspires.ftc.teamcode.robotParts.intake;
+import org.firstinspires.ftc.teamcode.robotParts.outtake;
 import org.firstinspires.ftc.teamcode.robotParts.servoPositions;
 
 import java.util.List;
 
-@TeleOp(name = "sequenceTest",group = "TeleOp")
-public class sequenceTest extends LinearOpMode {
+@Disabled
+@TeleOp(name = "DriveTest",group = "TeleOp")
+public class driveTest extends LinearOpMode {
     intake intake = new intake();
     outtake outtake = new outtake();
     MecanumDrivetrain drive = new MecanumDrivetrain();
 
     double[] driveVector;
-    intakeSequence state = intakeSequence.idle;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -35,25 +36,14 @@ public class sequenceTest extends LinearOpMode {
         if (isStopRequested()) return;
 
         while (opModeIsActive()) {
-            switch (state) {
-                case idle:
-                    if (gamepad1.x) {
-                        state = intakeSequence.getReady;
-                        intake.wrist.setPosition(servoPositions.wristTransfer.getPosition());
-                    }
-                    break;
-                case getReady:
-                    if (Math.abs(intake.wrist.getPosition() - servoPositions.wristTransfer.getPosition()) > 0.05) {
-                        state = intakeSequence.extend;
-                        intake.scissor.setPosition(servoPositions.scissorExtend.getPosition());
-                    }
-                    break;
-                case extend:
-                    if (Math.abs(intake.scissor.getPosition() - servoPositions.scissorExtend.getPosition()) > 0.05) {
-                        state = intakeSequence.drop;
-                        intake.wrist.setPosition(servoPositions.wristIntake.getPosition());
-                    }
-            }
+            intake.run(gamepad1.left_trigger - gamepad1.right_trigger);
+
+            if (gamepad1.dpad_left || gamepad1.dpad_right) intake.setWrist(servoPositions.wristTransfer.getPosition());
+            else if (gamepad1.dpad_down) intake.setWrist(servoPositions.wristIntake.getPosition());
+            else if (gamepad1.dpad_up) intake.setWrist(servoPositions.wristAway.getPosition());
+
+            if (gamepad1.x && Math.abs(intake.wrist.getPosition() - servoPositions.wristIntake.getPosition()) > 0.05) intake.setScissor(servoPositions.scissorRetract.getPosition());
+            else if (gamepad1.y) intake.setScissor(servoPositions.scissorExtend.getPosition());
 
             outtake.moveBar(gamepad2.left_trigger - gamepad2.right_trigger);
 
@@ -72,7 +62,6 @@ public class sequenceTest extends LinearOpMode {
 //            telemetry.addData("rotate",gamepad1.right_stick_x);
             telemetry.addData("maxPower",drive.maxPower);
             telemetry.addData("outtakeLeft power", gamepad1.left_stick_y);
-            telemetry.addData("intake power: ",intake.CRLeft.getPower());
             telemetry.addData("wrist pos",intake.wrist.getPosition());
             telemetry.addData("scissor pos", intake.scissor.getPosition());
             telemetry.addData("outtake pos", outtake.outtake.getPosition());

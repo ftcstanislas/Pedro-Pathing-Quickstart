@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode.robotParts.vision;
 
-import com.acmerobotics.dashboard.config.Config;
-
 import org.openftc.easyopencv.OpenCvPipeline;
 
 import org.opencv.core.Core;
@@ -20,20 +18,29 @@ import java.util.ArrayList;
 public class SampleDetectionPipeline extends OpenCvPipeline {
     boolean debug;
     public SampleDetectionPipeline(boolean localDebug){debug = localDebug;}
+
+    final double cameraXPos = 5.0, //In init, primary axis (x is forwards/backwards) offset versus middle of the intake
+            cameraYPos = -2.0, //Offset in secondary axis versus middle of the intake
+            cameraZPos = 32.0, //Height of the mount
+            cameraAlpha = Math.PI * 0.125, //In radians, 0 means parallel to the floor.
+            forwardDistanceOne = (cameraZPos - 3.8) * Math.tan(cameraAlpha), // - 3.8 because the camera sees the top of the pixel
+            yConstant = 0.2 * cameraZPos * Math.cos(cameraAlpha),
+            xConstant = 0;
+
     /*
      * Working image buffers
      */
-    Mat YCbCrMat = new Mat();
-    Mat CrMat = new Mat();
-    Mat CbMat = new Mat();
+    Mat YCbCrMat = new Mat(),
+        CrMat = new Mat(),
+        CbMat = new Mat();
 
-    Mat blueThresholdMat = new Mat();
-    Mat redThresholdMat = new Mat();
-    Mat yellowThresholdMat = new Mat();
+    Mat blueThresholdMat = new Mat(),
+        redThresholdMat = new Mat(),
+        yellowThresholdMat = new Mat();
 
-    Mat morphedBlueThreshold = new Mat();
-    Mat morphedRedThreshold = new Mat();
-    Mat morphedYellowThreshold = new Mat();
+    Mat morphedBlueThreshold = new Mat(),
+        morphedRedThreshold = new Mat(),
+        morphedYellowThreshold = new Mat();
 
     Mat contoursOnPlainImageMat = new Mat();
 
@@ -41,32 +48,52 @@ public class SampleDetectionPipeline extends OpenCvPipeline {
      * Threshold values
      */
     public static int
-            AREA_LOWER_LIMIT = 3000,
-            AREA_UPPER_LIMIT = 20000,
+            AREA_LOWER_LIMIT = 7000,
+            AREA_UPPER_LIMIT = 40000,
             YELLOW_MASK_THRESHOLD = 77,
             BLUE_MASK_THRESHOLD = 150,
-            RED_MASK_THRESHOLD = 170;
+            RED_MASK_THRESHOLD = 170,
+            x = 1,
+            y = 1;
 
     /*
      * Elements for noise reduction
      */
-    Mat erodeElement = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(3.5, 3.5));
-    Mat dilateElement = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(3.5, 3.5));
+    Mat erodeElement = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(3.5, 3.5)),
+        dilateElement = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(3.5, 3.5));
 
     /*
-     * Colors
+     * Colors for drawing on the Driver Station.
      */
-    static final Scalar RED = new Scalar(255, 0, 0);
-    static final Scalar BLUE = new Scalar(0, 0, 255);
-    static final Scalar YELLOW = new Scalar(255, 255, 0);
+    static final Scalar
+            RED = new Scalar(255, 0, 0),
+            BLUE = new Scalar(0, 0, 255),
+            YELLOW = new Scalar(255, 255, 0),
+            WHITE = new Scalar(255,255,255);
 
-    static final int CONTOUR_LINE_THICKNESS = 2;
-
-    public static class Sample {
+    public class Sample {
         double angle;
         Size size;
-        Point position;
-        String color;
+        Point cameraPosition;
+        double
+            actualX,actualY,
+            xFromBorder,yFromBorder;
+        Scalar color;
+        int score;
+
+        /**
+         * Is cameraY, which is robotX, and is relative to the intake
+         */
+        void inferY() {
+            actualY = forwardDistanceOne + cameraPosition.y * yConstant / Math.sin(cameraAlpha);
+        }
+
+        /**
+         * Is cameraX, which is robotY, and is relative to the intake
+         */
+        void inferX() {
+            actualX = 2 * actualY;
+        }
     }
 
     ArrayList<Sample> internalSampleList = new ArrayList<>();
@@ -91,8 +118,7 @@ public class SampleDetectionPipeline extends OpenCvPipeline {
     public void onViewportTapped() {
         int nextStageNum = stageNum + 1;
 
-        if(nextStageNum >= stages.length)
-        {
+        if(nextStageNum >= stages.length) {
             nextStageNum = 0;
         }
 
@@ -108,37 +134,37 @@ public class SampleDetectionPipeline extends OpenCvPipeline {
          */
         findContours(input);
 
+        for (Sample sample : internalSampleList) {
+            extractRealLifeData(sample);
+        }
+
         clientSampleList = new ArrayList<>(internalSampleList);
+
 
         /*
          * Decide which buffer to send to the viewport
          */
         switch (stages[stageNum]) {
-            case YCrCb: {
+            case YCrCb:
                 return YCbCrMat;
-            }
 
-            case MASKS: {
+            case MASKS:
                 Mat masks = new Mat();
                 Core.addWeighted(yellowThresholdMat, 1.0, redThresholdMat, 1.0, 0.0, masks);
                 Core.addWeighted(masks, 1.0, blueThresholdMat, 1.0, 0.0, masks);
                 return masks;
-            }
 
-            case MASKS_NR: {
+            case MASKS_NR:
                 Mat masksNR = new Mat();
                 Core.addWeighted(morphedYellowThreshold, 1.0, morphedRedThreshold, 1.0, 0.0, masksNR);
                 Core.addWeighted(masksNR, 1.0, morphedBlueThreshold, 1.0, 0.0, masksNR);
                 return masksNR;
-            }
 
-            case CONTOURS: {
+            case CONTOURS:
                 return contoursOnPlainImageMat;
-            }
 
-            default: {
+            default:
                 return input;
-            }
         }
     }
 
@@ -179,15 +205,15 @@ public class SampleDetectionPipeline extends OpenCvPipeline {
 
         // Analyze and draw contours
         for(MatOfPoint contour : blueContoursList) {
-            analyzeContour(contour, input, "Blue");
+            analyzeContour(contour, input, BLUE);
         }
 
         for(MatOfPoint contour : redContoursList) {
-            analyzeContour(contour, input, "Red");
+            analyzeContour(contour, input, RED);
         }
 
         for(MatOfPoint contour : yellowContoursList) {
-            analyzeContour(contour, input, "Yellow");
+            analyzeContour(contour, input, YELLOW);
         }
     }
 
@@ -202,7 +228,7 @@ public class SampleDetectionPipeline extends OpenCvPipeline {
         Imgproc.dilate(output, output, dilateElement);
     }
 
-    void analyzeContour(MatOfPoint contour, Mat input, String color) {
+    void analyzeContour(MatOfPoint contour, Mat input, Scalar color) {
         // Transform the contour to a different format
         Point[] points = contour.toArray();
         MatOfPoint2f contour2f = new MatOfPoint2f(points);
@@ -214,8 +240,7 @@ public class SampleDetectionPipeline extends OpenCvPipeline {
 
             // Adjust the angle based on rectangle dimensions
             double rotRectAngle = rotatedRectFitToContour.angle;
-            if (rotatedRectFitToContour.size.width < rotatedRectFitToContour.size.height)
-            {
+            if (rotatedRectFitToContour.size.width < rotatedRectFitToContour.size.height) {
                 rotRectAngle += 90;
             }
 
@@ -225,25 +250,27 @@ public class SampleDetectionPipeline extends OpenCvPipeline {
             // Store the detected stone information
             Sample sample = new Sample();
             sample.size = rotatedRectFitToContour.size;
-            sample.position = rotatedRectFitToContour.center;
+            sample.cameraPosition = rotatedRectFitToContour.center;
             sample.angle = rotRectAngle;
             sample.color = color;
             internalSampleList.add(sample);
 
             if(debug) {
+                drawLines(x,y,input);
                 drawRotatedRect(rotatedRectFitToContour, input, color);
                 drawRotatedRect(rotatedRectFitToContour, contoursOnPlainImageMat, color);
-                drawTagText(rotatedRectFitToContour,
-                        Integer.toString((int) Math.round(angle)) + " deg " +
-                                Integer.toString((int) Math.round(rotatedRectFitToContour.size.area())) + " area " +
-                                Integer.toString((int) Math.round(rotatedRectFitToContour.boundingRect().area())),
-                        input, color);
+                drawTagText(
+                    rotatedRectFitToContour,
+//                (int) Math.round(angle) + " deg " +
+                    (int) Math.round(rotatedRectFitToContour.size.area()) + " area " +
+                    (int) Math.round(rotatedRectFitToContour.center.x) + " x " +
+                    (int) Math.round(rotatedRectFitToContour.center.y) + " y",
+                    input, BLUE);
             }
         }
     }
 
-    static void drawTagText(RotatedRect rect, String text, Mat mat, String color) {
-        Scalar colorScalar = getColorScalar(color);
+    static void drawTagText(RotatedRect rect, String text, Mat mat, Scalar color) {
 
         Imgproc.putText(
                 mat, // The buffer we're drawing on
@@ -253,11 +280,11 @@ public class SampleDetectionPipeline extends OpenCvPipeline {
                         rect.center.y + 25), // y anchor point
                 Imgproc.FONT_HERSHEY_PLAIN, // Font
                 1, // Font size
-                colorScalar, // Font color
+                color, // Font color
                 1); // Font thickness
     }
 
-    static void drawRotatedRect(RotatedRect rect, Mat drawOn, String color) {
+    static void drawRotatedRect(RotatedRect rect, Mat drawOn, Scalar color) {
         /*
          * Draws a rotated rectangle by drawing each of the 4 lines individually
          */
@@ -265,20 +292,23 @@ public class SampleDetectionPipeline extends OpenCvPipeline {
         rect.points(points);
 
         for (int i = 0; i < 4; ++i) {
-            Imgproc.line(drawOn, points[i], points[(i + 1) % 4], getColorScalar(color), 2);
-            Imgproc.circle(drawOn,rect.center,15,getColorScalar(color));
+            Imgproc.line(drawOn, points[i], points[(i + 1) % 4], color, 2);
+            Imgproc.circle(drawOn,rect.center,15, color);
         }
     }
 
-    static Scalar getColorScalar(String color) {
-        switch (color)
-        {
-            case "Blue":
-                return BLUE;
-            case "Yellow":
-                return YELLOW;
-            default:
-                return RED;
-        }
+    static void drawLines(int x, int y, Mat input) {
+//        for (int i = -200; i <= 224; i += 40) {
+//            Imgproc.line(input, new Point(i,0), new Point(i,800), BLUE);
+//        }
+//        for (int i = 24; i <= 424; i += 40) {
+//            Imgproc.line(input, new Point(0,i), new Point(448,i), RED);
+//        }
+    }
+
+    void extractRealLifeData(Sample sample) {
+        sample.inferY();
+        sample.inferX();
+//        sample.yFromBorder;
     }
 }

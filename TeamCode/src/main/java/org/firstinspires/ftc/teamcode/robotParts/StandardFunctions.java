@@ -77,10 +77,11 @@ public class StandardFunctions {
      * (r*r*r+r)/2
      * Math.sin(2*Math.PI*r)/12 + r
      * Math.sin(2*Math.PI*r)/8 + r*r
-     * @param r
-     * @return
+     * @param r initial parameter (intended to be the r from a polar drive function)
+     * @return An exaggerated r.
      */
-    public double exaggerateJoystick(double r) {return Math.sin(2*Math.PI*r) / 9 + r;}
+    //TODO: tests alts
+    public double exaggerate(double r) {return Math.sin(2*Math.PI*r) / 9 + r;}
 
     //TODO: one hardwareMap list for all the stuff on the robot, including ports
 }

@@ -1,21 +1,25 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.robotParts.vision;
 
+import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.firstinspires.ftc.teamcode.robotParts.vision.SampleDetectionPipeline;
+import org.opencv.imgproc.Imgproc;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 
 import java.util.ArrayList;
-@TeleOp(name = "CameraTest",group = "TeleOp")
-public class CameraTest extends LinearOpMode {
+@Config
+@TeleOp(name = "Camera Tune",group = "TeleOp")
+public class sampleCameraTune extends LinearOpMode {
     OpenCvCamera camera;
-    SampleDetectionPipeline sampleDetectionPipeline = new SampleDetectionPipeline(true);
+    final SampleDetectionPipeline sampleDetectionPipeline = new SampleDetectionPipeline(true);
+
+    public static int x = 0, y = 0;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -25,15 +29,16 @@ public class CameraTest extends LinearOpMode {
         camera.setPipeline(sampleDetectionPipeline);
         camera.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
             @Override
-            public void onOpened()
-            {
-                camera.startStreaming(800,448, OpenCvCameraRotation.UPRIGHT);
-            }
+            public void onOpened() {camera.startStreaming(800,448, OpenCvCameraRotation.SIDEWAYS_RIGHT);}
 
             @Override
             public void onError(int errorCode) {}
         });
-        telemetry.setMsTransmissionInterval(50);
+        telemetry.setMsTransmissionInterval(25);
+
+        FtcDashboard.getInstance().startCameraStream(camera, 0);
+        telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
+
         while (!isStarted() && !isStopRequested()) {
             ArrayList<SampleDetectionPipeline.Sample> currentDetections = sampleDetectionPipeline.getDetectedStones();
         }
@@ -41,6 +46,8 @@ public class CameraTest extends LinearOpMode {
         if (isStopRequested()) return;
 
         while (opModeIsActive()) {
+            SampleDetectionPipeline.x = x;
+            SampleDetectionPipeline.y = y;
             telemetry.update();
         }
     }

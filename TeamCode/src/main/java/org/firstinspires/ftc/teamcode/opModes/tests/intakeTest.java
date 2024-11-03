@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.opModes.tests;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -22,14 +22,13 @@ public class intakeTest extends LinearOpMode {
         while (opModeIsActive()) {
             intake.run(gamepad2.left_stick_y);
 
-            if (gamepad2.a) intake.wrist(0.0);
-            else if (gamepad2.b) intake.wrist(0.45);
+            if (gamepad2.a) intake.setWrist(0.0);
+            else if (gamepad2.b) intake.setWrist(0.45);
             if (gamepad2.x) intake.setScissor(1.0);
             else if (gamepad2.y) intake.setScissor(0.75);
             outtake.moveBar(gamepad1.left_stick_y);
 
             telemetry.addData("outtakeLeft power", gamepad1.left_stick_y);
-            telemetry.addData("intake power: ",intake.CRLeft.getPower());
             telemetry.addData("wrist pos",intake.wrist.getPosition());
             telemetry.addData("scissor pos", intake.scissor.getPosition());
             telemetry.update();

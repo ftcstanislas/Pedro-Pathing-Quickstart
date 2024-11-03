@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.opModes;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
@@ -186,7 +186,7 @@ public class DemoTeleOp extends LinearOpMode {
                 Then, input these values into our drive function.
              */
             driveVector = drive.toPolar(currentGamepad1.left_stick_x,-currentGamepad1.left_stick_y);
-            driveVector[0] = drive.exaggerateJoystick(driveVector[0]);
+            driveVector[0] = drive.exaggerate(driveVector[0]);
             drive.robotCentric(driveVector,currentGamepad1.right_stick_x);
 
 
