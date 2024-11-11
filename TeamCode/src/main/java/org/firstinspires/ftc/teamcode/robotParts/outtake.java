@@ -10,7 +10,7 @@ public class outtake {
 
     public DcMotorEx barLeft, barRight, winch;
 
-    public Servo outtake, claw;
+    Servo bucket, claw, arm;
 
     public void init(HardwareMap map) {
         barLeft = map.get(DcMotorEx.class, "outtakeLeft");
@@ -25,19 +25,25 @@ public class outtake {
         winch.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         winch.setDirection(DcMotorSimple.Direction.FORWARD);
 
-        outtake = map.get(Servo.class, "outtake");
-        outtake.setPosition(servoPositions.outtakeInit.getPosition());
+        bucket = map.get(Servo.class, "outtake");
+        bucket.setPosition(servoPositions.outtakeInit.getPosition());
 
         claw = map.get(Servo.class, "claw");
         claw.setPosition(servoPositions.clawGrip.getPosition());
+
+        arm = map.get(Servo.class, "arm");
+        arm.setPosition(servoPositions.armIntake.getPosition());
     }
-    public void setOuttake(double position){outtake.setPosition(position);}
+    public void setBucket(double position){
+        bucket.setPosition(position);}
 
     //TODO: PIDF
     public void moveBar(double outtakePowerLocal){
         barLeft.setPower(outtakePowerLocal);
         barRight.setPower(outtakePowerLocal);
     }
+
+    public void setArm(double position) {arm.setPosition(position);}
 
     public void setWinch(double power) {winch.setPower(power);}
 

@@ -41,7 +41,7 @@ public class sequenceTest extends LinearOpMode {
 
             drive.robotCentric(-current.left_stick_y, current.left_stick_x, -current.right_stick_x);
             telemetry.addData("outtakeLeft power", gamepad1.left_stick_y);
-            telemetry.addData("wrist pos",intake.wrist.getPosition());
+            telemetry.addData("wrist pos",intake.wristLeft.getPosition());
             telemetry.addData("scissor pos", intake.scissor.getPosition());
             telemetry.addData("state",String.valueOf(intake.state));
             telemetry.update();

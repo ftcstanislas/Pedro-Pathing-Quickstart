@@ -21,22 +21,29 @@ public class intake {
 
     public intakeSequence state = intakeSequence.IDLING;
 
-    public Servo wrist,scissor;
+    public Servo wristLeft, wristRight,scissor;//TODO unpublic
 
     CRServo intakeServo;
 
     public void init(HardwareMap map) {
-        wrist = map.get(Servo.class, "wrist");
-        wrist.setPosition(servoPositions.wristTransfer.getPosition());
+        wristLeft = map.get(Servo.class, "wristLeft");
+
+        wristRight = map.get(Servo.class, "wristRight");
+//        setDiffy(0,0);TODO: starting pos
 
         scissor = map.get(Servo.class,"scissor");
         scissor.setDirection(Servo.Direction.REVERSE);
         scissor.setPosition(servoPositions.scissorRetract.getPosition());
 
-        intakeServo = map.get(CRServo.class,"intakeRight");
+        intakeServo = map.get(CRServo.class,"intake");
     }
 
-    public void setWrist(double position){wrist.setPosition(position);}
+    @Deprecated
+    public void setWrist(double position){wristLeft.setPosition(position);}
+    public void setDiffy(double pitch, double roll) {
+        wristLeft.setPosition(pitch + roll/2);
+        wristRight.setPosition(pitch - roll/2);
+    }
     public void setScissor(double position){scissor.setPosition(position);}
     public void run(double power){intakeServo.setPower(power);}
 

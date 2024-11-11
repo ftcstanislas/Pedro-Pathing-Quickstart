@@ -9,8 +9,10 @@ public enum servoPositions {
     outtakeDrop(1.0),
     outtakeReceive(0.29),
     outtakeInit(0.5),
-    clawGrip(0.18),
-    clawRelease(0.46);
+    clawGrip(0.15),
+    clawRelease(0.36),
+    armIntake(0),
+    armOuttake(0.8);
 
     private double position;
     public double getPosition(){return this.position;}

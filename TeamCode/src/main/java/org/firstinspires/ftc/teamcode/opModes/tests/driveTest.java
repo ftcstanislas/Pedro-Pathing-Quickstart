@@ -42,13 +42,13 @@ public class driveTest extends LinearOpMode {
             else if (gamepad1.dpad_down) intake.setWrist(servoPositions.wristIntake.getPosition());
             else if (gamepad1.dpad_up) intake.setWrist(servoPositions.wristAway.getPosition());
 
-            if (gamepad1.x && Math.abs(intake.wrist.getPosition() - servoPositions.wristIntake.getPosition()) > 0.05) intake.setScissor(servoPositions.scissorRetract.getPosition());
+            if (gamepad1.x && Math.abs(intake.wristLeft.getPosition() - servoPositions.wristIntake.getPosition()) > 0.05) intake.setScissor(servoPositions.scissorRetract.getPosition());
             else if (gamepad1.y) intake.setScissor(servoPositions.scissorExtend.getPosition());
 
             outtake.moveBar(gamepad2.left_trigger - gamepad2.right_trigger);
 
-            if (gamepad2.a) outtake.setOuttake(servoPositions.outtakeReceive.getPosition());
-            else if (gamepad2.b) outtake.setOuttake(servoPositions.outtakeDrop.getPosition());
+            if (gamepad2.a) outtake.setBucket(servoPositions.outtakeReceive.getPosition());
+            else if (gamepad2.b) outtake.setBucket(servoPositions.outtakeDrop.getPosition());
 
             drive.robotCentric(-gamepad1.left_stick_y, gamepad1.left_stick_x, -gamepad1.right_stick_x);
 //            driveVector = drive.toPolar(gamepad1.left_stick_x,-gamepad1.left_stick_y);
@@ -62,9 +62,8 @@ public class driveTest extends LinearOpMode {
 //            telemetry.addData("rotate",gamepad1.right_stick_x);
             telemetry.addData("maxPower",drive.maxPower);
             telemetry.addData("outtakeLeft power", gamepad1.left_stick_y);
-            telemetry.addData("wrist pos",intake.wrist.getPosition());
+            telemetry.addData("wrist pos",intake.wristLeft.getPosition());
             telemetry.addData("scissor pos", intake.scissor.getPosition());
-            telemetry.addData("outtake pos", outtake.outtake.getPosition());
             telemetry.update();
         }
     }

@@ -25,7 +25,7 @@ public class soloDrive extends LinearOpMode {
     volatile Gamepad last = new Gamepad();
     volatile Gamepad current = new Gamepad();
 
-    boolean clawOpen = false;
+    boolean clawOpen = false, armScoring = false;
 
     double power;
 
@@ -54,22 +54,25 @@ public class soloDrive extends LinearOpMode {
             else if (current.right_bumper && !last.right_bumper) power = 1;
             else if ((last.left_bumper || last.right_bumper) && !current.right_bumper && !current.left_bumper) power = 0.0;
 
-            intake.manualSequence(current.x && !last.x, power, current.y);
+//            intake.manualSequence(current.x && !last.x, power, current.y);
 
-            outtake.moveBar(current.left_trigger - current.right_trigger);
+            outtake.moveBar(-current.left_trigger + current.right_trigger);
 
             if (current.a && !last.a) {
                 outtake.setClaw((clawOpen) ? servoPositions.clawGrip.getPosition() : servoPositions.clawRelease.getPosition()); //Toggle using the ternary operator, see GM260c.
                 clawOpen ^= true;
+            }
+            if (current.x && !last.x) {
+                outtake.setArm((armScoring) ? servoPositions.armIntake.getPosition() : servoPositions.armOuttake.getPosition()); //Toggle using the ternary operator, see GM260c.
+                armScoring ^= true;
             }
 
             drive.robotCentric(-current.left_stick_y, current.left_stick_x, -current.right_stick_x);
 
             telemetry.addData("maxPower",drive.maxPower);
             telemetry.addData("outtakeLeft power", current.left_stick_y);
-            telemetry.addData("wrist pos",intake.wrist.getPosition());
+            telemetry.addData("wrist pos",intake.wristLeft.getPosition());
             telemetry.addData("scissor pos", intake.scissor.getPosition());
-            telemetry.addData("outtake pos", outtake.outtake.getPosition());
             telemetry.update();
         }
     }
