@@ -9,10 +9,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Gamepad;
 
-import org.firstinspires.ftc.teamcode.robotParts.MecanumDrivetrain;
-import org.firstinspires.ftc.teamcode.robotParts.intake;
 import org.firstinspires.ftc.teamcode.robotParts.outtake;
-import org.firstinspires.ftc.teamcode.robotParts.servoPositions;
 
 import java.util.List;
 
@@ -24,13 +21,12 @@ public class PIDFTest extends LinearOpMode {
     volatile Gamepad last = new Gamepad();
     volatile Gamepad current = new Gamepad();
 
-    public static double p = 0, i = 0, d = 0, f = 0;
+    public static double p = 0, i = 0, d = 0, k = 0;
     public static int target;
     int ticks;
-    final double ticks_per_radian = 1425.1/Math.PI;
-    double power, ff;
+    double power;
 
-    PIDController pidf = new PIDController(p,i,d);
+    PIDController pid = new PIDController(p,i,d);
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -42,7 +38,7 @@ public class PIDFTest extends LinearOpMode {
         outtake.init(hardwareMap);
 
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
-        pidf.setPID(p,i,d);
+        pid.setPID(p,i,d);
 
         waitForStart();
         if (isStopRequested()) return;
@@ -51,13 +47,10 @@ public class PIDFTest extends LinearOpMode {
             last.copy(current);
             current.copy(gamepad1);
 
-            ticks = outtake.barRight.getCurrentPosition();
-
-//            outtake.moveBar(current.left_trigger - current.right_trigger);
-            power = pidf.calculate(ticks,target);
-            ff = Math.cos((ticks - 0)/ticks_per_radian) * f;
-            power += ff;
-            outtake.barRight.setPower(power);
+//            ticks = outtake.barRight.getCurrentPosition();
+//            power = pid.calculate(ticks,target);
+            power = -current.left_trigger + current.right_trigger;
+            outtake.moveBar(power, k);
 
             telemetry.addData("pos ", ticks);
             telemetry.addData("target ", target);

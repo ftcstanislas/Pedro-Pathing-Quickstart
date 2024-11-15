@@ -10,8 +10,6 @@ public class MecanumDrivetrain extends StandardFunctions {
 
     int j;
 
-    public double[] driveVector;
-
     final double
             //TODO: tune angle
             angle = Math.atan(Math.sqrt(2)),
@@ -44,6 +42,16 @@ public class MecanumDrivetrain extends StandardFunctions {
     }
 
     @Deprecated
+    public void outdatedRobotCentric(double[] driveVector, double rotate) {
+        motorPowers[0] = driveVector[0]*(Math.sin(driveVector[1])+Math.cos(driveVector[1])) + rotate;
+        motorPowers[1] = driveVector[0]*(Math.sin(driveVector[1])-Math.cos(driveVector[1])) - rotate;
+        motorPowers[2] = driveVector[0]*(Math.sin(driveVector[1])+Math.cos(driveVector[1])) - rotate;
+        motorPowers[3] = driveVector[0]*(Math.sin(driveVector[1])-Math.cos(driveVector[1])) + rotate;
+
+        setMotors();
+    }
+
+    @Deprecated
     public void robotCentric(double forward, double right, double rotate) {
         double rotateMultiplier = 0.5;
         double leftFrontPower = forward + right + rotateMultiplier*rotate;
@@ -67,8 +75,7 @@ public class MecanumDrivetrain extends StandardFunctions {
      * @param values An array containing a drivePower, driveAngle and rotatePower.
      * @see <a href="#drive(double[], double)">drive()</a>, values follows the same limitations.
      */
-    public void robotCentric(double[] values) {
-        robotCentric(new double[] {values[0], values[1]}, values[2]);}
+    public void robotCentric(double[] values) {robotCentric(new double[] {values[0], values[1]}, values[2]);}
 
     /**
      * <p>This method does the kinematics to transfer a drive vector and a rotate power into usable motor powers for a mecanum drivetrain.
@@ -152,13 +159,7 @@ public class MecanumDrivetrain extends StandardFunctions {
         for (int i = 0; i < 4; i++) {
             motorPowers[i] /= (maxPower*drivePower[0]);
         }
-
-        // Motor powers are sent to the motors.
-        j = 0;
-        for (DcMotorEx motor : new DcMotorEx[]{FrontL,FrontR,BackL,BackR}) {
-            motor.setPower(motorPowers[j]);
-            j++;
-        }
+        setMotors();
     }
 
     /**
@@ -205,5 +206,14 @@ public class MecanumDrivetrain extends StandardFunctions {
         FrontR.setPower(motorPowers[1]);
         BackL.setPower(motorPowers[2]);
         BackR.setPower(motorPowers[3]);
+    }
+    void setMotors() {
+
+        // Motor powers are sent to the motors.
+        j = 0;
+        for (DcMotorEx motor : new DcMotorEx[]{FrontL,FrontR,BackL,BackR}) {
+            motor.setPower(motorPowers[j]);
+            j++;
+        }
     }
 }

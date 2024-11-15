@@ -11,7 +11,6 @@ import org.firstinspires.ftc.teamcode.robotParts.intake;
 
 import java.util.List;
 
-@Disabled
 @TeleOp(name = "sequenceTest",group = "TeleOp")
 public class sequenceTest extends LinearOpMode {
     intake intake = new intake();

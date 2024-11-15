@@ -1,10 +1,7 @@
 package org.firstinspires.ftc.teamcode.robotParts;
 
 public enum servoPositions {
-    wristIntake(0.0),
-    wristAway(0.62),
-    wristTransfer(0.25),
-    scissorExtend(0.60),
+    scissorExtend(0.48),
     scissorRetract(1.0),
     outtakeDrop(1.0),
     outtakeReceive(0.29),
@@ -12,7 +9,11 @@ public enum servoPositions {
     clawGrip(0.15),
     clawRelease(0.36),
     armIntake(0),
-    armOuttake(0.8);
+    armOuttake(0.8),
+    intakeFront(new double[]{0.0,0.0}),
+    intakeBack(new double[]{1,0}),
+    transfer(new double[]{0.85,0.23}),
+    sideTransfer(new double[]{0.59,0.0});
 
     private double position;
     public double getPosition(){return this.position;}
@@ -20,4 +21,8 @@ public enum servoPositions {
     servoPositions(double position) {
         this.position = position;
     }
+
+    private double[] differential;
+    public double[] getDifferential(){return this.differential;}
+    servoPositions(double[] differential){this.differential = differential;}
 }
