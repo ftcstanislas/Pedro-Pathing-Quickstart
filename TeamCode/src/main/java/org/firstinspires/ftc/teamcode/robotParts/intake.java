@@ -29,7 +29,7 @@ public class intake {
         wristLeft = map.get(Servo.class, "wristLeft");
 
         wristRight = map.get(Servo.class, "wristRight");
-//        setDiffy(0,0);TODO: starting pos
+        setDiffy(servoPositions.transfer.getDifferential());
 
         scissor = map.get(Servo.class,"scissor");
         scissor.setDirection(Servo.Direction.REVERSE);

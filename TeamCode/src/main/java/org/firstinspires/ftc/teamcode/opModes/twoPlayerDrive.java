@@ -27,9 +27,7 @@ public class twoPlayerDrive extends LinearOpMode {
     volatile Gamepad last2 = new Gamepad();
     volatile Gamepad current2 = new Gamepad();
 
-    boolean clawOpen = false, armScoring = false;
-
-    double[] scissor;
+    boolean clawOpen = false, armScoring = false, scissorOut = false;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -54,21 +52,25 @@ public class twoPlayerDrive extends LinearOpMode {
             current1.copy(gamepad1);
             current2.copy(gamepad2);
 
-            scissor = drive.toPolar(current2.left_stick_x, -current2.left_stick_y);
-            if (scissor[0] > 0.8 && scissor[1] >= 0 && scissor[1] <= Math.PI) {
-                intake.setScissor(scissor[1]/Math.PI*0.52 + 0.48);
-            }
-
             intake.run(current2.right_trigger - current2.left_trigger);
 
-            if (current2.dpad_down) {
-                intake.setDiffy(servoPositions.sideTransfer.getDifferential());
-            } else if (current2.dpad_left) {
-                intake.setDiffy(servoPositions.intakeBack.getDifferential());
-            } else if (current2.dpad_right) {
-                intake.setDiffy(servoPositions.intakeFront.getDifferential());
-            } else if (current2.dpad_up) {
-                intake.setDiffy(servoPositions.transfer.getDifferential());
+            if (scissorOut) {
+                if (current2.dpad_down) {
+                    intake.setDiffy(servoPositions.intakeFront.getDifferential());
+                } else if (current2.dpad_right) {
+                    intake.setDiffy(servoPositions.sideTransfer.getDifferential());
+                }
+                if (current2.a && !last2.a) {
+                    scissorOut = false;
+                    intake.setScissor(servoPositions.scissorRetract.getPosition());
+                    intake.setDiffy(servoPositions.transfer.getDifferential());
+                }
+            } else {
+                if (current2.b && !last2.b) {
+                    scissorOut = true;
+                    intake.setScissor(servoPositions.scissorExtend.getPosition());
+                    intake.setDiffy(servoPositions.sideTransfer.getDifferential());
+                }
             }
 
             outtake.moveBar((-current1.left_trigger + current1.right_trigger) * 0.7,0);
