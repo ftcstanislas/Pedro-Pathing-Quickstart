@@ -48,17 +48,17 @@ public class outtake {
     public void init(HardwareMap map) {
         barLeft = map.get(DcMotorEx.class, "outtakeLeft");
         barLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        barLeft.setDirection(DcMotorSimple.Direction.FORWARD);
+        barLeft.setDirection(DcMotorSimple.Direction.REVERSE);
 
         barRight = map.get(DcMotorEx.class, "outtakeRight");
         barRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         barRight.setDirection(DcMotorSimple.Direction.FORWARD);
 
         bucket = map.get(Servo.class, "outtake");
-        bucket.setPosition(servoPositions.outtakeInit.getPosition());
+        bucket.setPosition(servoPositions.bucketInit.getPosition());
 
         claw = map.get(Servo.class, "claw");
-        claw.setPosition(servoPositions.clawGrip.getPosition());
+        claw.setPosition(servoPositions.outtakeGrip.getPosition());
 
         arm = map.get(Servo.class, "arm");
         arm.setPosition(servoPositions.armIntake.getPosition());
@@ -97,7 +97,7 @@ public class outtake {
             case IDLING:
                 if (toggle) {
                     specimenState = specimenSequence.GRAB;
-                    setClaw(servoPositions.clawGrip.getPosition());
+                    setClaw(servoPositions.outtakeGrip.getPosition());
                     //claw should be open
                     //bar should be down
                     time = System.currentTimeMillis();
@@ -122,7 +122,7 @@ public class outtake {
                 }
                 break;
             case RELEASE:
-                setClaw(servoPositions.clawRelease.getPosition());
+                setClaw(servoPositions.outtakeRelease.getPosition());
                 time = System.currentTimeMillis();
                 specimenState = specimenSequence.DROP;
                 break;
@@ -137,7 +137,7 @@ public class outtake {
                 break;
         }
         if (reset) {
-            setClaw(servoPositions.clawRelease.getPosition());
+            setClaw(servoPositions.outtakeRelease.getPosition());
             specimenState = specimenSequence.DROP;
         }
     }

@@ -9,7 +9,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Gamepad;
 
 import org.firstinspires.ftc.teamcode.robotParts.MecanumDrivetrain;
-import org.firstinspires.ftc.teamcode.robotParts.intake;
+import org.firstinspires.ftc.teamcode.robotParts.clawIntake;
 import org.firstinspires.ftc.teamcode.robotParts.outtake;
 import org.firstinspires.ftc.teamcode.robotParts.servoPositions;
 
@@ -18,7 +18,7 @@ import java.util.List;
 @Config
 @TeleOp(name = "DuoDrive",group = "TeleOp")
 public class twoPlayerDrive extends LinearOpMode {
-    intake intake = new intake();
+    clawIntake intake = new clawIntake();
     outtake outtake = new outtake();
     MecanumDrivetrain drive = new MecanumDrivetrain();
 
@@ -27,7 +27,7 @@ public class twoPlayerDrive extends LinearOpMode {
     volatile Gamepad last2 = new Gamepad();
     volatile Gamepad current2 = new Gamepad();
 
-    boolean clawOpen = false, armScoring = false, scissorOut = false;
+    boolean clawOpen = false, armScoring = false, scissorOut = false, intakeOpen = true;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -52,31 +52,34 @@ public class twoPlayerDrive extends LinearOpMode {
             current1.copy(gamepad1);
             current2.copy(gamepad2);
 
-            intake.run(current2.right_trigger - current2.left_trigger);
-
+            if (current2.y && !last2.y) {
+                intake.setClaw((intakeOpen) ? servoPositions.intakeGrip.getPosition() : servoPositions.intakeRelease.getPosition()); //Toggle using the ternary operator, see GM260c.
+                intakeOpen ^= true;
+            }
             if (scissorOut) {
-                if (current2.dpad_down) {
-                    intake.setDiffy(servoPositions.intakeFront.getDifferential());
+                if (current2.dpad_left) {
+                    intake.setDiffy(servoPositions.clawIntakeNarrow.getDifferential());
                 } else if (current2.dpad_right) {
-                    intake.setDiffy(servoPositions.sideTransfer.getDifferential());
+                    intake.setDiffy(servoPositions.clawIntakeWide.getDifferential());
                 }
-                if (current2.a && !last2.a) {
+                if (current2.left_bumper && !last2.left_bumper) {
                     scissorOut = false;
                     intake.setScissor(servoPositions.scissorRetract.getPosition());
-                    intake.setDiffy(servoPositions.transfer.getDifferential());
+                    intake.setDiffy(servoPositions.clawDrop.getDifferential());
                 }
             } else {
-                if (current2.b && !last2.b) {
+                if (current2.right_bumper && !last2.right_bumper) {
                     scissorOut = true;
                     intake.setScissor(servoPositions.scissorExtend.getPosition());
-                    intake.setDiffy(servoPositions.sideTransfer.getDifferential());
+                    intake.setDiffy(servoPositions.clawIntakeNarrow.getDifferential());
+                    intake.setClaw(servoPositions.intakeRelease.getPosition());
                 }
             }
 
             outtake.moveBar((-current1.left_trigger + current1.right_trigger) * 0.7,0);
 
             if (current1.a && !last1.a) {
-                outtake.setClaw((clawOpen) ? servoPositions.clawGrip.getPosition() : servoPositions.clawRelease.getPosition()); //Toggle using the ternary operator, see GM260c.
+                outtake.setClaw((clawOpen) ? servoPositions.outtakeGrip.getPosition() : servoPositions.outtakeRelease.getPosition()); //Toggle using the ternary operator, see GM260c.
                 clawOpen ^= true;
             }
             if (current1.x && !last1.x) {

@@ -9,7 +9,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Gamepad;
 
 import org.firstinspires.ftc.teamcode.robotParts.MecanumDrivetrain;
-import org.firstinspires.ftc.teamcode.robotParts.intake;
+import org.firstinspires.ftc.teamcode.robotParts.rollerIntake;
 import org.firstinspires.ftc.teamcode.robotParts.outtake;
 import org.firstinspires.ftc.teamcode.robotParts.servoPositions;
 
@@ -18,7 +18,7 @@ import java.util.List;
 @Config
 @TeleOp(name = "SoloDrive",group = "TeleOp")
 public class soloDrive extends LinearOpMode {
-    intake intake = new intake();
+    rollerIntake intake = new rollerIntake();
     outtake outtake = new outtake();
     MecanumDrivetrain drive = new MecanumDrivetrain();
 
@@ -54,12 +54,12 @@ public class soloDrive extends LinearOpMode {
             else if (current.right_bumper && !last.right_bumper) power = 1;
             else if ((last.left_bumper || last.right_bumper) && !current.right_bumper && !current.left_bumper) power = 0.0;
 
-//            intake.manualSequence(current.x && !last.x, power, current.y);
+            intake.manualSequence(current.x && !last.x, power, current.y);
 
             outtake.moveBar(-current.left_trigger + current.right_trigger,0);
 
             if (current.a && !last.a) {
-                outtake.setClaw((clawOpen) ? servoPositions.clawGrip.getPosition() : servoPositions.clawRelease.getPosition()); //Toggle using the ternary operator, see GM260c.
+                outtake.setClaw((clawOpen) ? servoPositions.outtakeGrip.getPosition() : servoPositions.outtakeRelease.getPosition()); //Toggle using the ternary operator, see GM260c.
                 clawOpen ^= true;
             }
             if (current.x && !last.x) {
