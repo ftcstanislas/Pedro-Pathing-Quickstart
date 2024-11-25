@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode.robotParts;
 public enum servoPositions {
     intakeGrip(0.5),
     intakeRelease(0.05),
-    scissorExtend(0.40),
+    scissorExtend(0.8),
     scissorRetract(1.0),
     bucketDrop(1.0),
     bucketReceive(0.29),

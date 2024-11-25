@@ -48,7 +48,7 @@ public class outtake {
     public void init(HardwareMap map) {
         barLeft = map.get(DcMotorEx.class, "outtakeLeft");
         barLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        barLeft.setDirection(DcMotorSimple.Direction.REVERSE);
+        barLeft.setDirection(DcMotorSimple.Direction.FORWARD);
 
         barRight = map.get(DcMotorEx.class, "outtakeRight");
         barRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
