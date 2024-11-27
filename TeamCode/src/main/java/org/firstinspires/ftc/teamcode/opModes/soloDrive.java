@@ -71,7 +71,7 @@ public class soloDrive extends LinearOpMode {
                 }
             }
 
-            outtake.moveBar((-current.left_trigger + current.right_trigger) * 0.7,0);
+            outtake.moveArm(-current.left_trigger + current.right_trigger);
 
             if (current.a && !last.a) {
                 outtake.setClaw((clawOpen) ? servoPositions.outtakeGrip.getPosition() : servoPositions.outtakeRelease.getPosition()); //Toggle using the ternary operator, see GM260c.
@@ -85,7 +85,7 @@ public class soloDrive extends LinearOpMode {
             outtake.moveHook(gamepad2.left_trigger - gamepad2.right_trigger);
 
 //            drive.robotCentric(-current.left_stick_y, current.left_stick_x, -current.right_stick_x);
-            drive.outdatedRobotCentric(drive.toPolar(current.left_stick_x,-current.left_stick_y), -current.right_stick_x);
+//            drive.outdatedRobotCentric(drive.toPolar(current.left_stick_x,-current.left_stick_y), -current.right_stick_x);
 
             drive.robotCentric(-current.left_stick_y, current.left_stick_x, -current.right_stick_x);
 

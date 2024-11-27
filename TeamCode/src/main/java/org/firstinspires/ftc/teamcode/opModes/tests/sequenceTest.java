@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.opModes.tests;
 
 import com.qualcomm.hardware.lynx.LynxModule;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Gamepad;
@@ -10,6 +11,7 @@ import org.firstinspires.ftc.teamcode.robotParts.rollerIntake;
 
 import java.util.List;
 
+@Disabled
 @TeleOp(name = "sequenceTest",group = "TeleOp")
 public class sequenceTest extends LinearOpMode {
     rollerIntake intake = new rollerIntake();

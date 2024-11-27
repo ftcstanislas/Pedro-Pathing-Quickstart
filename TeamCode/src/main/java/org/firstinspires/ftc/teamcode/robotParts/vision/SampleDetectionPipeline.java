@@ -19,12 +19,15 @@ public class SampleDetectionPipeline extends OpenCvPipeline {
     boolean debug;
     public SampleDetectionPipeline(boolean localDebug){debug = localDebug;}
 
-    final double cameraXPos = 5.0, //In init, primary axis (x is forwards/backwards) offset versus middle of the intake
+    final double
+            xPixels = 448,
+            yPixels = 800,
+            cameraXPos = 5.0, //In init, primary axis (x is forwards/backwards) offset versus middle of the intake
             cameraYPos = -2.0, //Offset in secondary axis versus middle of the intake
-            cameraZPos = 28.0, //Height of the mount
-            cameraAlpha = Math.PI * 0.125, //In radians, 0 means parallel to the floor.
-            yConstant = 9 * Math.sqrt(3025.0/337.0) / 640,//9:16 ratio on the camera * sqrt ( 55 degrees squared / (9^2 + 16^2) ) = horizontal FOV, divided by pixels to get degree per pixel TODO maybe regression better
-            xConstant = 16 * Math.sqrt(3025.0/337.0) / 360; //TODO maybe regression better
+            cameraZPos = 28.4, //Height of the mount
+            cameraAlpha = 42.47, //In degrees, will be converted to radians later, 0 means parallel to the floor.
+            yDegreePerPixel = 25 * Math.sqrt(3025.0/821.0) / yPixels,//14:25 ratio on the camera * sqrt ( 55 degrees squared / (14^2 + 25^2) ) = horizontal FOV, divided by pixels to get degree per pixel TODO maybe regression better
+            xDegreePerPixel = 14 * Math.sqrt(3025.0/821.0) / xPixels; //TODO maybe regression better
 
     /*
      * Working image buffers
@@ -49,8 +52,8 @@ public class SampleDetectionPipeline extends OpenCvPipeline {
      * Threshold values
      */
     public static int
-            AREA_LOWER_LIMIT = 7000,
-            AREA_UPPER_LIMIT = 50000,
+            AREA_LOWER_LIMIT = 5000,
+            AREA_UPPER_LIMIT = 100000,
             YELLOW_MASK_THRESHOLD = 77,
             BLUE_MASK_THRESHOLD = 150,
             RED_MASK_THRESHOLD = 170;
@@ -74,6 +77,7 @@ public class SampleDetectionPipeline extends OpenCvPipeline {
         double cameraAngle;
         Size size;
         Point cameraPosition;
+        double cameraYAngle,cameraXAngle;
         double
             actualX,actualY,
             actualAngle,
@@ -85,7 +89,8 @@ public class SampleDetectionPipeline extends OpenCvPipeline {
          * Is cameraY, which is robotX, and is relative to the intake.
          */
         void inferY() {
-            actualY = cameraZPos * Math.atan(Math.toRadians(cameraAlpha - cameraPosition.y * yConstant));
+            cameraYAngle = (cameraPosition.y - 0.5 * yPixels) * yDegreePerPixel;
+            actualY = cameraZPos * Math.tan(Math.toRadians(cameraAlpha - cameraYAngle));
             //TODO: correct for intake offset
         }
 
@@ -93,7 +98,8 @@ public class SampleDetectionPipeline extends OpenCvPipeline {
          * Is cameraX, which is robotY, and is relative to the intake.
          */
         void inferX() {
-            actualX = cameraZPos * Math.acos(cameraAlpha) * Math.atan(Math.toRadians(cameraPosition.x * xConstant)) * scaleX(actualY);
+            cameraXAngle = (cameraPosition.x - 0.5 * xPixels) * xDegreePerPixel;
+            actualX = (cameraZPos / Math.cos(Math.toRadians(cameraAlpha)))*Math.tan(Math.toRadians(cameraXAngle)) * 1;
             //TODO: correct for intake offset
         }
 
@@ -275,8 +281,10 @@ public class SampleDetectionPipeline extends OpenCvPipeline {
                     rotatedRectFitToContour,
 //                (int) Math.round(angle) + " deg " +
 //                    (int) Math.round(rotatedRectFitToContour.size.area()) + " area " +
-                    (int) Math.round(rotatedRectFitToContour.center.x) + " x " +
-                    (int) Math.round(rotatedRectFitToContour.center.y) + " y",
+                    sample.actualX + " x " +
+                    sample.actualY + " y",
+//                    (int) Math.round(sample.cameraXAngle) + " x " +
+//                    (long) sample.cameraYAngle + " y ",
                     input, BLUE);
             }
         }
@@ -291,7 +299,7 @@ public class SampleDetectionPipeline extends OpenCvPipeline {
                         rect.center.x - 50,  // x anchor point
                         rect.center.y + 25), // y anchor point
                 Imgproc.FONT_HERSHEY_PLAIN, // Font
-                1, // Font size
+                3, // Font size
                 color, // Font color
                 1); // Font thickness
     }

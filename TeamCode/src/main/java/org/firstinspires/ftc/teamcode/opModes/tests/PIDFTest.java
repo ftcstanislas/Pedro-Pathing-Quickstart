@@ -5,6 +5,7 @@ import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.arcrobotics.ftclib.controller.PIDController;
 import com.qualcomm.hardware.lynx.LynxModule;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Gamepad;
@@ -13,7 +14,7 @@ import org.firstinspires.ftc.teamcode.robotParts.outtake;
 
 import java.util.List;
 
-@Config
+@Disabled
 @TeleOp(name = "PIDFTest",group = "TeleOp")
 public class PIDFTest extends LinearOpMode {
     outtake outtake = new outtake();

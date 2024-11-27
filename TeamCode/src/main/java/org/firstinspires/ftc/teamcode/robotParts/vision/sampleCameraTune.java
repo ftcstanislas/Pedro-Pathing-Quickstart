@@ -29,7 +29,7 @@ public class sampleCameraTune extends LinearOpMode {
         camera.setPipeline(sampleDetectionPipeline);
         camera.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
             @Override
-            public void onOpened() {camera.startStreaming(1280,720, OpenCvCameraRotation.SIDEWAYS_LEFT);}
+            public void onOpened() {camera.startStreaming(800,448, OpenCvCameraRotation.SIDEWAYS_LEFT);}
 
             @Override
             public void onError(int errorCode) {}
@@ -41,6 +41,15 @@ public class sampleCameraTune extends LinearOpMode {
 
         while (!isStarted() && !isStopRequested()) {
             ArrayList<SampleDetectionPipeline.Sample> currentDetections = sampleDetectionPipeline.getDetectedStones();
+            for (SampleDetectionPipeline.Sample sample : currentDetections) {
+                telemetry.addData("x", sample.actualX);
+                telemetry.addData("y", sample.actualY);
+                telemetry.addData("standard y", 28.4 * Math.tan(Math.toRadians(42.47)));
+                telemetry.addData("cos", 28.4 / Math.cos(Math.toRadians(42.47)));
+                telemetry.addData("standard x", (28.4 / Math.cos(Math.toRadians(42.47)))*Math.tan(Math.toRadians(sample.cameraXAngle)));
+                telemetry.update();
+            }
+
         }
 
         if (isStopRequested()) return;
