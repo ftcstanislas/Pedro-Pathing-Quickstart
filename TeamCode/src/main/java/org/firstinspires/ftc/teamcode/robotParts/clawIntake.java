@@ -20,13 +20,13 @@ public class clawIntake {
 
     public intakeSequence state = intakeSequence.IDLING;
 
-    public Servo wristLeft, wristRight,scissor, intakeClaw;//TODO unpublic
+    public Servo differentialLeft, differentialRight, elbow, scissor, intakeClaw;//TODO unpublic
 
     public void init(HardwareMap map) {
-        wristLeft = map.get(Servo.class, "wristLeft");
+        differentialLeft = map.get(Servo.class, "wristLeft");
 
-        wristRight = map.get(Servo.class, "wristRight");
-//        setDiffy(0,0);TODO: starting pos
+        differentialRight = map.get(Servo.class, "wristRight");
+//        setDiffy(servoPositions.clawIntakeNarrow.getDifferential()); //TODO: starting pos
 
         scissor = map.get(Servo.class,"scissor");
         scissor.setDirection(Servo.Direction.REVERSE);
@@ -36,10 +36,11 @@ public class clawIntake {
     }
 
     @Deprecated
-    public void setWrist(double position){wristLeft.setPosition(position);}
+    public void setWrist(double position){
+        differentialLeft.setPosition(position);}
     public void setDiffy(double[] positions) {
-        wristLeft.setPosition(positions[0]);
-        wristRight.setPosition(positions[1]);
+        differentialLeft.setPosition(positions[0]);
+        differentialRight.setPosition(positions[1]);
     }
     public void setScissor(double position){scissor.setPosition(position);}
 

@@ -5,7 +5,6 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.robotParts.clawIntake;
-import org.firstinspires.ftc.teamcode.robotParts.rollerIntake;
 import org.firstinspires.ftc.teamcode.robotParts.servoPositions;
 
 @Config
@@ -34,8 +33,8 @@ public class intakeTest extends LinearOpMode {
 //            } else if (gamepad1.dpad_up) {
 //                intake.setDiffy(servoPositions.rollerTransfer.getDifferential());
 //            }
-            intake.wristLeft.setPosition(left);
-            intake.wristRight.setPosition(right);
+            intake.differentialLeft.setPosition(left);
+            intake.differentialRight.setPosition(right);
 
 //            intake.setScissor(0.6*gamepad1.left_stick_y+0.4);
             if (gamepad1.x) intake.setScissor(servoPositions.scissorRetract.getPosition());

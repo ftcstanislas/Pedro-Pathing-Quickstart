@@ -10,7 +10,6 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 
 import org.firstinspires.ftc.teamcode.robotParts.MecanumDrivetrain;
 import org.firstinspires.ftc.teamcode.robotParts.clawIntake;
-import org.firstinspires.ftc.teamcode.robotParts.rollerIntake;
 import org.firstinspires.ftc.teamcode.robotParts.outtake;
 import org.firstinspires.ftc.teamcode.robotParts.servoPositions;
 
@@ -77,21 +76,17 @@ public class soloDrive extends LinearOpMode {
                 outtake.setClaw((clawOpen) ? servoPositions.outtakeGrip.getPosition() : servoPositions.outtakeRelease.getPosition()); //Toggle using the ternary operator, see GM260c.
                 clawOpen ^= true;
             }
-            if (current.x && !last.x) {
-                outtake.setArmServo((armScoring) ? servoPositions.armIntake.getPosition() : servoPositions.armOuttake.getPosition()); //Toggle using the ternary operator, see GM260c.
-                armScoring ^= true;
-            }
+
+
 
             outtake.moveHook(gamepad2.left_trigger - gamepad2.right_trigger);
 
-//            drive.robotCentric(-current.left_stick_y, current.left_stick_x, -current.right_stick_x);
 //            drive.outdatedRobotCentric(drive.toPolar(current.left_stick_x,-current.left_stick_y), -current.right_stick_x);
-
             drive.robotCentric(-current.left_stick_y, current.left_stick_x, -current.right_stick_x);
 
             telemetry.addData("maxPower",drive.maxPower);
             telemetry.addData("outtakeLeft power", current.left_stick_y);
-            telemetry.addData("wrist pos",intake.wristLeft.getPosition());
+            telemetry.addData("wrist pos",intake.differentialLeft.getPosition());
             telemetry.addData("scissor pos", intake.scissor.getPosition());
             telemetry.update();
         }
