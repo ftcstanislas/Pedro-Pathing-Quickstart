@@ -23,8 +23,8 @@ public class soloDrive extends LinearOpMode {
     outtake outtake = new outtake();
     MecanumDrivetrain drive = new MecanumDrivetrain();
 
-    volatile Gamepad last1 = new Gamepad();
-    volatile Gamepad current1 = new Gamepad();
+    volatile Gamepad last = new Gamepad();
+    volatile Gamepad current = new Gamepad();
     boolean clawOpen = false, armScoring = false, scissorOut = false, intakeOpen = true;
 
     @Override
@@ -45,47 +45,52 @@ public class soloDrive extends LinearOpMode {
         if (isStopRequested()) return;
 
         while (opModeIsActive()) {
-            last1.copy(current1);
-            current1.copy(gamepad1);
+            last.copy(current);
+            current.copy(gamepad1);
 
-            if (current1.y && !last1.y) {
+            if (current.y && !last.y) {
                 intake.setClaw((intakeOpen) ? servoPositions.intakeGrip.getPosition() : servoPositions.intakeRelease.getPosition()); //Toggle using the ternary operator, see GM260c.
                 intakeOpen ^= true;
             }
             if (scissorOut) {
-                if (current1.dpad_left) {
+                if (current.dpad_left) {
                     intake.setDiffy(servoPositions.clawIntakeNarrow.getDifferential());
-                } else if (current1.dpad_right) {
+                } else if (current.dpad_right) {
                     intake.setDiffy(servoPositions.clawIntakeWide.getDifferential());
                 }
-                if (current1.left_bumper && !last1.left_bumper) {
+                if (current.left_bumper && !last.left_bumper) {
                     scissorOut = false;
                     intake.setScissor(servoPositions.scissorRetract.getPosition());
                     intake.setDiffy(servoPositions.clawDrop.getDifferential());
                 }
             } else {
-                if (current1.right_bumper && !last1.right_bumper) {
+                if (current.right_bumper && !last.right_bumper) {
                     scissorOut = true;
                     intake.setScissor(servoPositions.scissorExtend.getPosition());
                     intake.setClaw(servoPositions.intakeRelease.getPosition());
                 }
             }
 
-            outtake.moveBar((-current1.left_trigger + current1.right_trigger) * 0.7,0);
+            outtake.moveBar((-current.left_trigger + current.right_trigger) * 0.7,0);
 
-            if (current1.a && !last1.a) {
+            if (current.a && !last.a) {
                 outtake.setClaw((clawOpen) ? servoPositions.outtakeGrip.getPosition() : servoPositions.outtakeRelease.getPosition()); //Toggle using the ternary operator, see GM260c.
                 clawOpen ^= true;
             }
-            if (current1.x && !last1.x) {
-                outtake.setArm((armScoring) ? servoPositions.armIntake.getPosition() : servoPositions.armOuttake.getPosition()); //Toggle using the ternary operator, see GM260c.
+            if (current.x && !last.x) {
+                outtake.setArmServo((armScoring) ? servoPositions.armIntake.getPosition() : servoPositions.armOuttake.getPosition()); //Toggle using the ternary operator, see GM260c.
                 armScoring ^= true;
             }
 
-            drive.robotCentric(-current1.left_stick_y, current1.left_stick_x, -current1.right_stick_x);
+            outtake.moveHook(gamepad2.left_trigger - gamepad2.right_trigger);
+
+//            drive.robotCentric(-current.left_stick_y, current.left_stick_x, -current.right_stick_x);
+            drive.outdatedRobotCentric(drive.toPolar(current.left_stick_x,-current.left_stick_y), -current.right_stick_x);
+
+            drive.robotCentric(-current.left_stick_y, current.left_stick_x, -current.right_stick_x);
 
             telemetry.addData("maxPower",drive.maxPower);
-            telemetry.addData("outtakeLeft power", current1.left_stick_y);
+            telemetry.addData("outtakeLeft power", current.left_stick_y);
             telemetry.addData("wrist pos",intake.wristLeft.getPosition());
             telemetry.addData("scissor pos", intake.scissor.getPosition());
             telemetry.update();
