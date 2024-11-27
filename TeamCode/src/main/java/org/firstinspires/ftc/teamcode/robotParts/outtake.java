@@ -10,11 +10,8 @@ import com.qualcomm.robotcore.hardware.Servo;
 public class outtake {
     public enum specimenSequence {
         IDLING,
-        GRAB,
         UP,
-        FIDDLE,
-        RELEASE,
-        DROP
+        FIDDLE
     }
     enum armPositions {
         DOWN(0),
@@ -33,11 +30,11 @@ public class outtake {
 
     public specimenSequence specimenState = specimenSequence.IDLING;
 
-    public DcMotorEx barLeft, barRight;
+    public DcMotorEx barLeft, barRight, arm, hookLeft, hookRight;
 
-    Servo bucket, claw, arm;
+    Servo bucket, claw, armServo;
 
-    double leftPos, rightPos, time;
+    double leftPos, rightPos, armPos, time;
 
     final double k = 0, p = 0, i = 0, d = 0;
     int ticks;
@@ -46,13 +43,17 @@ public class outtake {
     PIDController pid = new PIDController(p,i,d);
 
     public void init(HardwareMap map) {
-        barLeft = map.get(DcMotorEx.class, "outtakeLeft");
-        barLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        barLeft.setDirection(DcMotorSimple.Direction.REVERSE);
+        arm = map.get(DcMotorEx.class, "arm");
+        arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        arm.setDirection(DcMotorSimple.Direction.REVERSE);
 
-        barRight = map.get(DcMotorEx.class, "outtakeRight");
-        barRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        barRight.setDirection(DcMotorSimple.Direction.FORWARD);
+        hookLeft = map.get(DcMotorEx.class,"hookLeft");
+        hookLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        hookLeft.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        hookRight = map.get(DcMotorEx.class,"hookRight");
+        hookRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        hookRight.setDirection(DcMotorSimple.Direction.REVERSE);
 
         bucket = map.get(Servo.class, "outtake");
         bucket.setPosition(servoPositions.bucketInit.getPosition());
@@ -60,14 +61,15 @@ public class outtake {
         claw = map.get(Servo.class, "claw");
         claw.setPosition(servoPositions.outtakeGrip.getPosition());
 
-        arm = map.get(Servo.class, "arm");
-        arm.setPosition(servoPositions.armIntake.getPosition());
+        armServo = map.get(Servo.class, "armServo");
+        armServo.setPosition(servoPositions.armIntake.getPosition());
 
         pid.setPID(p,i,d);
     }
-    public void setBucket(double position){
-        bucket.setPosition(position);}
+    @Deprecated
+    public void setBucket(double position){bucket.setPosition(position);}
 
+    @Deprecated
     public void moveBar(double outtakePowerLocal, double k){//TODO: tune k
         leftPos = barLeft.getCurrentPosition();
         rightPos = barRight.getCurrentPosition();
@@ -82,13 +84,28 @@ public class outtake {
     }
 
     //TODO: tune values
+    @Deprecated
     public void barPID(int target) {
         rightPos = barRight.getCurrentPosition();
         power = pid.calculate(ticks,target);
         moveBar(power,k);
     }
 
-    public void setArm(double position) {arm.setPosition(position);}
+    public void moveArm(double outtakePowerLocal) {arm.setPower(outtakePowerLocal);}
+
+    public void moveHook(double hookPowerLocal) {
+        hookLeft.setPower(hookPowerLocal);
+        hookRight.setPower(hookPowerLocal);
+    }
+
+    public void armPID(int target) {
+        armPos = arm.getCurrentPosition();
+        power = pid.calculate(armPos,target);
+        moveArm(power);
+    }
+
+    @Deprecated
+    public void setArmServo(double position) {armServo.setPosition(position);}
 
     public void setClaw(double position) {claw.setPosition(position);}
 
@@ -96,49 +113,31 @@ public class outtake {
         switch (specimenState) {
             case IDLING:
                 if (toggle) {
-                    specimenState = specimenSequence.GRAB;
+                    specimenState = specimenSequence.UP;
                     setClaw(servoPositions.outtakeGrip.getPosition());
                     //claw should be open
-                    //bar should be down
+                    //arm should be down
                     time = System.currentTimeMillis();
-                }
-                break;
-            case GRAB:
-                if (time + 300 < System.currentTimeMillis()) {
-                    specimenState = specimenSequence.UP;
                 }
                 break;
             case UP:
                 if (leftPos - armPositions.HIGH_RUNG.getPosition() < 10) {
                     specimenState = specimenSequence.FIDDLE;
                 } else {
-                    barPID(armPositions.HIGH_RUNG.getPosition());
+                    armPID(armPositions.HIGH_RUNG.getPosition());
                 }
                 break;
             case FIDDLE:
-                moveBar(power,k);
+                moveArm(power);
                 if (toggle) {
-                    specimenState = specimenSequence.RELEASE;
-                }
-                break;
-            case RELEASE:
-                setClaw(servoPositions.outtakeRelease.getPosition());
-                time = System.currentTimeMillis();
-                specimenState = specimenSequence.DROP;
-                break;
-            case DROP:
-                if (time + 300 < System.currentTimeMillis()) {
-                    if (leftPos - armPositions.DOWN.getPosition() < 10) {
-                        specimenState = specimenSequence.IDLING;
-                    } else {
-                        barPID(armPositions.DOWN.getPosition());
-                    }
+                    specimenState = specimenSequence.IDLING;
+                    setClaw(servoPositions.outtakeRelease.getPosition());
                 }
                 break;
         }
         if (reset) {
             setClaw(servoPositions.outtakeRelease.getPosition());
-            specimenState = specimenSequence.DROP;
+            specimenState = specimenSequence.IDLING;
         }
     }
 }

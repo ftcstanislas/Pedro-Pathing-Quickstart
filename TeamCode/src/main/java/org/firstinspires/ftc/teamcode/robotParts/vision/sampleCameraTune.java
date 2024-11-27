@@ -29,7 +29,7 @@ public class sampleCameraTune extends LinearOpMode {
         camera.setPipeline(sampleDetectionPipeline);
         camera.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
             @Override
-            public void onOpened() {camera.startStreaming(800,448, OpenCvCameraRotation.SIDEWAYS_RIGHT);}
+            public void onOpened() {camera.startStreaming(1280,720, OpenCvCameraRotation.SIDEWAYS_LEFT);}
 
             @Override
             public void onError(int errorCode) {}
@@ -46,8 +46,6 @@ public class sampleCameraTune extends LinearOpMode {
         if (isStopRequested()) return;
 
         while (opModeIsActive()) {
-            SampleDetectionPipeline.x = x;
-            SampleDetectionPipeline.y = y;
             telemetry.update();
         }
     }

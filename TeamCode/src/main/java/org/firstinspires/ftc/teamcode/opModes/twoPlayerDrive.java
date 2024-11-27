@@ -83,7 +83,7 @@ public class twoPlayerDrive extends LinearOpMode {
                 clawOpen ^= true;
             }
             if (current1.x && !last1.x) {
-                outtake.setArm((armScoring) ? servoPositions.armIntake.getPosition() : servoPositions.armOuttake.getPosition()); //Toggle using the ternary operator, see GM260c.
+                outtake.setArmServo((armScoring) ? servoPositions.armIntake.getPosition() : servoPositions.armOuttake.getPosition()); //Toggle using the ternary operator, see GM260c.
                 armScoring ^= true;
             }
 

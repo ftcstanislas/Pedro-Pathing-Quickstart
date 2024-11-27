@@ -21,11 +21,10 @@ public class SampleDetectionPipeline extends OpenCvPipeline {
 
     final double cameraXPos = 5.0, //In init, primary axis (x is forwards/backwards) offset versus middle of the intake
             cameraYPos = -2.0, //Offset in secondary axis versus middle of the intake
-            cameraZPos = 32.0, //Height of the mount
+            cameraZPos = 28.0, //Height of the mount
             cameraAlpha = Math.PI * 0.125, //In radians, 0 means parallel to the floor.
-            forwardDistanceOne = (cameraZPos - 3.8) * Math.tan(cameraAlpha), // - 3.8 because the camera sees the top of the pixel
-            yConstant = 0.2 * cameraZPos * Math.cos(cameraAlpha),
-            xConstant = 0;
+            yConstant = 9 * Math.sqrt(3025.0/337.0) / 640,//9:16 ratio on the camera * sqrt ( 55 degrees squared / (9^2 + 16^2) ) = horizontal FOV, divided by pixels to get degree per pixel TODO maybe regression better
+            xConstant = 16 * Math.sqrt(3025.0/337.0) / 360; //TODO maybe regression better
 
     /*
      * Working image buffers
@@ -44,17 +43,17 @@ public class SampleDetectionPipeline extends OpenCvPipeline {
 
     Mat contoursOnPlainImageMat = new Mat();
 
+    RotatedRect rotatedRectFitToContour;
+
     /*
      * Threshold values
      */
     public static int
             AREA_LOWER_LIMIT = 7000,
-            AREA_UPPER_LIMIT = 40000,
+            AREA_UPPER_LIMIT = 50000,
             YELLOW_MASK_THRESHOLD = 77,
             BLUE_MASK_THRESHOLD = 150,
-            RED_MASK_THRESHOLD = 170,
-            x = 1,
-            y = 1;
+            RED_MASK_THRESHOLD = 170;
 
     /*
      * Elements for noise reduction
@@ -72,27 +71,37 @@ public class SampleDetectionPipeline extends OpenCvPipeline {
             WHITE = new Scalar(255,255,255);
 
     public class Sample {
-        double angle;
+        double cameraAngle;
         Size size;
         Point cameraPosition;
         double
             actualX,actualY,
+            actualAngle,
             xFromBorder,yFromBorder;
         Scalar color;
         int score;
 
         /**
-         * Is cameraY, which is robotX, and is relative to the intake
+         * Is cameraY, which is robotX, and is relative to the intake.
          */
         void inferY() {
-            actualY = forwardDistanceOne + cameraPosition.y * yConstant / Math.sin(cameraAlpha);
+            actualY = cameraZPos * Math.atan(Math.toRadians(cameraAlpha - cameraPosition.y * yConstant));
+            //TODO: correct for intake offset
         }
 
         /**
-         * Is cameraX, which is robotY, and is relative to the intake
+         * Is cameraX, which is robotY, and is relative to the intake.
          */
         void inferX() {
-            actualX = 2 * actualY;
+            actualX = cameraZPos * Math.acos(cameraAlpha) * Math.atan(Math.toRadians(cameraPosition.x * xConstant)) * scaleX(actualY);
+            //TODO: correct for intake offset
+        }
+
+        /**
+         * Angle the robot would have to turn to align the slides with the sample.
+         */
+        void inferAngle() {
+            actualAngle = Math.tan(actualX/actualY);
         }
     }
 
@@ -136,6 +145,8 @@ public class SampleDetectionPipeline extends OpenCvPipeline {
 
         for (Sample sample : internalSampleList) {
             extractRealLifeData(sample);
+            //TODO: if too close to border remove from internalSampleList
+            assignSamplePoints(sample);
         }
 
         clientSampleList = new ArrayList<>(internalSampleList);
@@ -234,7 +245,7 @@ public class SampleDetectionPipeline extends OpenCvPipeline {
         MatOfPoint2f contour2f = new MatOfPoint2f(points);
 
         // Fit a rotated rectangle to the contour and draw it
-        RotatedRect rotatedRectFitToContour = Imgproc.minAreaRect(contour2f);
+        rotatedRectFitToContour = Imgproc.minAreaRect(contour2f);
 
         if(rotatedRectFitToContour.size.area() > AREA_LOWER_LIMIT && rotatedRectFitToContour.size.area() < AREA_UPPER_LIMIT) {
 
@@ -251,18 +262,19 @@ public class SampleDetectionPipeline extends OpenCvPipeline {
             Sample sample = new Sample();
             sample.size = rotatedRectFitToContour.size;
             sample.cameraPosition = rotatedRectFitToContour.center;
-            sample.angle = rotRectAngle;
+            sample.cameraAngle = rotRectAngle;
             sample.color = color;
             internalSampleList.add(sample);
 
             if(debug) {
-                drawLines(x,y,input);
+                sample.inferY();
+                sample.inferX();
                 drawRotatedRect(rotatedRectFitToContour, input, color);
                 drawRotatedRect(rotatedRectFitToContour, contoursOnPlainImageMat, color);
                 drawTagText(
                     rotatedRectFitToContour,
 //                (int) Math.round(angle) + " deg " +
-                    (int) Math.round(rotatedRectFitToContour.size.area()) + " area " +
+//                    (int) Math.round(rotatedRectFitToContour.size.area()) + " area " +
                     (int) Math.round(rotatedRectFitToContour.center.x) + " x " +
                     (int) Math.round(rotatedRectFitToContour.center.y) + " y",
                     input, BLUE);
@@ -297,18 +309,33 @@ public class SampleDetectionPipeline extends OpenCvPipeline {
         }
     }
 
-    static void drawLines(int x, int y, Mat input) {
-//        for (int i = -200; i <= 224; i += 40) {
-//            Imgproc.line(input, new Point(i,0), new Point(i,800), BLUE);
-//        }
-//        for (int i = 24; i <= 424; i += 40) {
-//            Imgproc.line(input, new Point(0,i), new Point(448,i), RED);
-//        }
-    }
-
+    /**
+     *
+     * @param sample
+     */
     void extractRealLifeData(Sample sample) {
         sample.inferY();
         sample.inferX();
+        sample.inferAngle();
 //        sample.yFromBorder;
+//        sample.xFromBorder;
+    }
+
+    /**
+     *
+     * @param sample
+     */
+    void assignSamplePoints(Sample sample) {
+        sample.score -= (int) sample.actualY;
+        sample.score -= (int) (2 * Math.abs(sample.actualX));
+    }
+
+    /**
+     *
+     * @param y
+     * @return
+     */
+    double scaleX(double y) {
+        return Math.cos(Math.toRadians(9*Math.sqrt(3025.0/377.0))) * y + 1; //TODO regression
     }
 }
