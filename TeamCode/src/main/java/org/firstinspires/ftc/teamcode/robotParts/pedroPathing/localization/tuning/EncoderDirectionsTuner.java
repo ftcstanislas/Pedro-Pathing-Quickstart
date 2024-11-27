@@ -21,7 +21,6 @@ import org.firstinspires.ftc.teamcode.robotParts.pedroPathing.util.Drawing;
 import java.util.List;
 
 @Config
-@Disabled
 @Autonomous(name = "Encoder Directions Tuner", group = "Autonomous Pathing Tuning")
 public class EncoderDirectionsTuner extends LinearOpMode {
     DcMotorEx left, right, strafe;

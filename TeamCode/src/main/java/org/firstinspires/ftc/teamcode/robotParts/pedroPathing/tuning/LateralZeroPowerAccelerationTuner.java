@@ -47,7 +47,7 @@ public class LateralZeroPowerAccelerationTuner extends OpMode {
 
     private PoseUpdater poseUpdater;
 
-    public static double VELOCITY = 35;
+    public static double VELOCITY = 20;
 
     private double previousVelocity;
 
