@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.robotParts;
 
-import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
@@ -21,9 +22,12 @@ public class clawIntake {
 
     public intakeSequence state = intakeSequence.IDLING;
 
-    public Servo differentialLeft, differentialRight, elbow, scissor, intakeClaw;//TODO unpublic
+    public Servo differentialLeft, differentialRight, scissor, intakeClaw;//TODO unpublic
 
-    public DcMotor slides;
+    public DcMotorEx slides;
+
+    final int slideMax = 0, slideMin = -480;
+    int slidePos;
 
     public void init(HardwareMap map) {
         differentialLeft = map.get(Servo.class, "wristLeft");
@@ -31,12 +35,7 @@ public class clawIntake {
         differentialRight = map.get(Servo.class, "wristRight");
 //        setDiffy(servoPositions.clawIntakeNarrow.getDifferential()); //TODO: starting pos
 
-        scissor = map.get(Servo.class,"scissor");
-        scissor.setDirection(Servo.Direction.REVERSE);
-        scissor.setPosition(servoPositions.scissorRetract.getPosition());
-
-        slides = map.get(DcMotor.class, "slides");
-        slides.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        slides = map.get(DcMotorEx.class, "slides");
 
         intakeClaw = map.get(Servo.class,"intake");
     }
@@ -52,8 +51,9 @@ public class clawIntake {
 
     public void setClaw(double position){intakeClaw.setPosition(position);}
 
-    public void setSlides(double power){
-        slides.setPower(power);
+    public void setSlidesWithLimit(double power){
+        slidePos = slides.getCurrentPosition();
+        slides.setPower(((power < 0 && slidePos < slideMin) || (power > 0 && slidePos > slideMax)) ? 0 : power);
     }
 
     public void manualSequence(boolean toggle, double power, boolean reset) {

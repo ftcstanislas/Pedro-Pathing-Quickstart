@@ -13,21 +13,17 @@ import org.firstinspires.ftc.teamcode.robotParts.servoPositions;
 @Config
 @TeleOp(name = "clawTest",group = "TeleOp")
 public class clawTest extends LinearOpMode {
-    Servo claw;
+    int target;
     @Override
     public void runOpMode() throws InterruptedException {
-        claw = hardwareMap.get(Servo.class, "claw");
-        claw.setPosition(servoPositions.outtakeGrip.getPosition());
+        outtake outtake = new outtake();
 
         waitForStart();
         if (isStopRequested()) return;
 
         while (opModeIsActive()) {
-            if (gamepad1.a) {
-                claw.setPosition(servoPositions.intakeGrip.getPosition());
-            } else if (gamepad1.b) {
-                claw.setPosition(servoPositions.intakeRelease.getPosition());
-            }
+            if (gamepad1.x) target = 0;
+            else if (gamepad1.b) target = 500;
             telemetry.addData("power",-gamepad1.left_stick_y);
             telemetry.update();
         }

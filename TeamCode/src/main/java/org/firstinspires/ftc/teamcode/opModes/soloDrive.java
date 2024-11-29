@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.opModes;
 
 import com.acmerobotics.dashboard.FtcDashboard;
-import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -15,7 +14,6 @@ import org.firstinspires.ftc.teamcode.robotParts.servoPositions;
 
 import java.util.List;
 
-@Config
 @TeleOp(name = "SoloDrive",group = "TeleOp")
 public class soloDrive extends LinearOpMode {
     clawIntake intake = new clawIntake();
@@ -24,7 +22,7 @@ public class soloDrive extends LinearOpMode {
 
     volatile Gamepad last = new Gamepad();
     volatile Gamepad current = new Gamepad();
-    boolean clawOpen = false, scissorOut = false, intakeOpen = true;
+    boolean clawOpen = false, intakeOpen = true;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -51,24 +49,10 @@ public class soloDrive extends LinearOpMode {
                 intake.setClaw((intakeOpen) ? servoPositions.intakeGrip.getPosition() : servoPositions.intakeRelease.getPosition()); //Toggle using the ternary operator, see GM260c.
                 intakeOpen ^= true;
             }
-            if (scissorOut) {
-                if (current.dpad_left) {
-                    intake.setDiffy(servoPositions.clawIntakeNarrow.getDifferential());
-                } else if (current.dpad_right) {
-                    intake.setDiffy(servoPositions.clawIntakeWide.getDifferential());
-                }
-                if (current.left_bumper && !last.left_bumper) {
-                    scissorOut = false;
-                    intake.setScissor(servoPositions.scissorRetract.getPosition());
-                    intake.setDiffy(servoPositions.clawDrop.getDifferential());
-                }
-            } else {
-                if (current.right_bumper && !last.right_bumper) {
-                    scissorOut = true;
-                    intake.setScissor(servoPositions.scissorExtend.getPosition());
-                    intake.setClaw(servoPositions.intakeRelease.getPosition());
-                }
-            }
+
+            if (current.dpad_up && !last.dpad_up) intake.setDiffy(servoPositions.clawDrop.getDifferential());
+            else if (current.dpad_left && !last.dpad_left) intake.setDiffy(servoPositions.clawIntakeNarrow.getDifferential());
+            else if (current.dpad_right && !last.dpad_right) intake.setDiffy(servoPositions.clawIntakeWide.getDifferential());
 
             outtake.moveArm(-current.left_trigger + current.right_trigger);
 
@@ -77,17 +61,15 @@ public class soloDrive extends LinearOpMode {
                 clawOpen ^= true;
             }
 
-            intake.setSlides(0.5*gamepad2.left_stick_y);
+            intake.setSlidesWithLimit(0.3*current.right_stick_y);
 
-            outtake.moveHook(gamepad2.left_trigger - gamepad2.right_trigger);
+            outtake.moveHook(-gamepad2.left_trigger + gamepad2.right_trigger);
 
 //            drive.outdatedRobotCentric(drive.toPolar(current.left_stick_x,-current.left_stick_y), -current.right_stick_x);
             drive.robotCentric(-current.left_stick_y, current.left_stick_x, -current.right_stick_x);
 
-            telemetry.addData("maxPower",drive.maxPower);
-            telemetry.addData("outtakeLeft power", current.left_stick_y);
-//            telemetry.addData("wrist pos",intake.elbowLeft.getPosition());
-            telemetry.addData("scissor pos", intake.scissor.getPosition());
+            telemetry.addData("arm pos", outtake.arm.getCurrentPosition());
+            telemetry.addData("slides pos", intake.slides.getCurrentPosition());
             telemetry.update();
         }
     }
