@@ -24,17 +24,11 @@ public class intakeTest extends LinearOpMode {
         while (opModeIsActive()) {
             left = -gamepad1.left_stick_y;
             right = -gamepad1.right_stick_y;
-//            if (gamepad1.dpad_down) {
-//                intake.setDiffy(servoPositions.rollerSide.getDifferential());
-//            } else if (gamepad1.dpad_left) {
-//                intake.setDiffy(servoPositions.rollerBack.getDifferential());
-//            } else if (gamepad1.dpad_right) {
-//                intake.setDiffy(servoPositions.rollerFront.getDifferential());
-//            } else if (gamepad1.dpad_up) {
-//                intake.setDiffy(servoPositions.rollerTransfer.getDifferential());
-//            }
-            intake.differentialLeft.setPosition(left);
-            intake.differentialRight.setPosition(right);
+
+            intake.slides.setPower(gamepad1.left_trigger - gamepad1.right_trigger);
+
+//            intake.differentialLeft.setPosition(left);
+//            intake.differentialRight.setPosition(right);
 
 //            intake.setScissor(0.6*gamepad1.left_stick_y+0.4);
             if (gamepad1.x) intake.setScissor(servoPositions.scissorRetract.getPosition());

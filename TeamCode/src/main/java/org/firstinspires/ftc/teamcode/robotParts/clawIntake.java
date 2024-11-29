@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.robotParts;
 
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
@@ -22,6 +23,8 @@ public class clawIntake {
 
     public Servo differentialLeft, differentialRight, elbow, scissor, intakeClaw;//TODO unpublic
 
+    public DcMotorEx slides;
+
     public void init(HardwareMap map) {
         differentialLeft = map.get(Servo.class, "wristLeft");
 
@@ -33,6 +36,8 @@ public class clawIntake {
         scissor.setPosition(servoPositions.scissorRetract.getPosition());
 
         intakeClaw = map.get(Servo.class,"intake");
+
+        slides = map.get(DcMotorEx.class, "slides");
     }
 
     @Deprecated

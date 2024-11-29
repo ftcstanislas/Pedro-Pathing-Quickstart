@@ -55,14 +55,14 @@ public class outtake {
         hookRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         hookRight.setDirection(DcMotorSimple.Direction.REVERSE);
 
-        bucket = map.get(Servo.class, "outtake");
-        bucket.setPosition(servoPositions.bucketInit.getPosition());
+//        bucket = map.get(Servo.class, "outtake");
+//        bucket.setPosition(servoPositions.bucketInit.getPosition());
 
         claw = map.get(Servo.class, "claw");
         claw.setPosition(servoPositions.outtakeGrip.getPosition());
 
-        armServo = map.get(Servo.class, "armServo");
-        armServo.setPosition(servoPositions.armIntake.getPosition());
+//        armServo = map.get(Servo.class, "armServo");
+//        armServo.setPosition(servoPositions.armIntake.getPosition());
 
         pid.setPID(p,i,d);
     }
