@@ -91,7 +91,7 @@ public class twoPlayerDrive extends LinearOpMode {
 
             telemetry.addData("maxPower",drive.maxPower);
             telemetry.addData("outtakeLeft power", current1.left_stick_y);
-            telemetry.addData("wrist pos",intake.differentialLeft.getPosition());
+//            telemetry.addData("wrist pos",intake.elbowLeft.getPosition());
             telemetry.addData("scissor pos", intake.scissor.getPosition());
             telemetry.update();
         }

@@ -24,7 +24,7 @@ public class soloDrive extends LinearOpMode {
 
     volatile Gamepad last = new Gamepad();
     volatile Gamepad current = new Gamepad();
-    boolean clawOpen = false, armScoring = false, scissorOut = false, intakeOpen = true;
+    boolean clawOpen = false, scissorOut = false, intakeOpen = true;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -77,7 +77,7 @@ public class soloDrive extends LinearOpMode {
                 clawOpen ^= true;
             }
 
-
+            intake.setSlides(0.5*gamepad2.left_stick_y);
 
             outtake.moveHook(gamepad2.left_trigger - gamepad2.right_trigger);
 
@@ -86,7 +86,7 @@ public class soloDrive extends LinearOpMode {
 
             telemetry.addData("maxPower",drive.maxPower);
             telemetry.addData("outtakeLeft power", current.left_stick_y);
-            telemetry.addData("wrist pos",intake.differentialLeft.getPosition());
+//            telemetry.addData("wrist pos",intake.elbowLeft.getPosition());
             telemetry.addData("scissor pos", intake.scissor.getPosition());
             telemetry.update();
         }

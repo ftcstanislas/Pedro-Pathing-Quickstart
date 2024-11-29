@@ -74,7 +74,7 @@ public class SampleDetectionPipeline extends OpenCvPipeline {
             WHITE = new Scalar(255,255,255);
 
     public class Sample {
-        double cameraAngle;
+        double grabAngle;
         Size size;
         Point cameraPosition;
         double cameraYAngle,cameraXAngle;
@@ -83,7 +83,7 @@ public class SampleDetectionPipeline extends OpenCvPipeline {
             actualAngle,
             xFromBorder,yFromBorder;
         Scalar color;
-        int score;
+        double score;
 
         /**
          * Is cameraY, which is robotX, and is relative to the intake.
@@ -99,7 +99,7 @@ public class SampleDetectionPipeline extends OpenCvPipeline {
          */
         void inferX() {
             cameraXAngle = (cameraPosition.x - 0.5 * xPixels) * xDegreePerPixel;
-            actualX = (cameraZPos / Math.cos(Math.toRadians(cameraAlpha)))*Math.tan(Math.toRadians(cameraXAngle)) * 1;
+            actualX = (cameraZPos / Math.cos(Math.toRadians(cameraAlpha)))*Math.tan(Math.toRadians(cameraXAngle)) * scaleX(cameraYAngle);
             //TODO: correct for intake offset
         }
 
@@ -108,6 +108,24 @@ public class SampleDetectionPipeline extends OpenCvPipeline {
          */
         void inferAngle() {
             actualAngle = Math.tan(actualX/actualY);
+        }
+
+        /**
+         *
+         */
+        void assignSamplePoints() {
+            score -= (int) actualY;
+            score -= (int) (2 * Math.abs(actualX));
+        }
+
+        /**
+         *
+         * @param y
+         * @return
+         */
+        double scaleX(double y) {
+            return 1;
+//            return Math.cos(Math.toRadians(9*Math.sqrt(3025.0/377.0))) * y + 1; //TODO regression
         }
     }
 
@@ -127,6 +145,7 @@ public class SampleDetectionPipeline extends OpenCvPipeline {
 
     Stage[] stages = Stage.values();
     int stageNum = 0;
+    public Sample bestSample;
 
 
     @Override
@@ -148,12 +167,7 @@ public class SampleDetectionPipeline extends OpenCvPipeline {
          * Run the image processing
          */
         findContours(input);
-
-        for (Sample sample : internalSampleList) {
-            extractRealLifeData(sample);
-            //TODO: if too close to border remove from internalSampleList
-            assignSamplePoints(sample);
-        }
+        getBestSample(internalSampleList, RED);
 
         clientSampleList = new ArrayList<>(internalSampleList);
 
@@ -268,7 +282,7 @@ public class SampleDetectionPipeline extends OpenCvPipeline {
             Sample sample = new Sample();
             sample.size = rotatedRectFitToContour.size;
             sample.cameraPosition = rotatedRectFitToContour.center;
-            sample.cameraAngle = rotRectAngle;
+            sample.grabAngle = angle;
             sample.color = color;
             internalSampleList.add(sample);
 
@@ -288,6 +302,35 @@ public class SampleDetectionPipeline extends OpenCvPipeline {
                     input, BLUE);
             }
         }
+    }
+
+    /**
+     *
+     * @param sampleList
+     * @param color
+     * @return
+     */
+    public Sample getBestSample(ArrayList<SampleDetectionPipeline.Sample> sampleList, Scalar color) {
+        bestSample = new Sample();
+        bestSample.score = 0;
+        for (Sample sample : sampleList) {
+            //TODO: remove wrong colors
+//            if (sample.color != color) {
+//                sampleList.remove(sample);
+//                break;
+//            }
+
+//        sample.yFromBorder;
+//        sample.xFromBorder;
+            //TODO: if too close to border remove from sampleList
+
+            sample.inferY();
+            sample.inferX();
+            sample.inferAngle();
+            sample.assignSamplePoints();
+            if (sample.score > bestSample.score) bestSample = sample;
+        }
+        return bestSample;
     }
 
     static void drawTagText(RotatedRect rect, String text, Mat mat, Scalar color) {
@@ -315,35 +358,5 @@ public class SampleDetectionPipeline extends OpenCvPipeline {
             Imgproc.line(drawOn, points[i], points[(i + 1) % 4], color, 2);
             Imgproc.circle(drawOn,rect.center,15, color);
         }
-    }
-
-    /**
-     *
-     * @param sample
-     */
-    void extractRealLifeData(Sample sample) {
-        sample.inferY();
-        sample.inferX();
-        sample.inferAngle();
-//        sample.yFromBorder;
-//        sample.xFromBorder;
-    }
-
-    /**
-     *
-     * @param sample
-     */
-    void assignSamplePoints(Sample sample) {
-        sample.score -= (int) sample.actualY;
-        sample.score -= (int) (2 * Math.abs(sample.actualX));
-    }
-
-    /**
-     *
-     * @param y
-     * @return
-     */
-    double scaleX(double y) {
-        return Math.cos(Math.toRadians(9*Math.sqrt(3025.0/377.0))) * y + 1; //TODO regression
     }
 }

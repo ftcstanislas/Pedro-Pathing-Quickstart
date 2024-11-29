@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.robotParts;
 
-import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
@@ -23,7 +23,7 @@ public class clawIntake {
 
     public Servo differentialLeft, differentialRight, elbow, scissor, intakeClaw;//TODO unpublic
 
-    public DcMotorEx slides;
+    public DcMotor slides;
 
     public void init(HardwareMap map) {
         differentialLeft = map.get(Servo.class, "wristLeft");
@@ -35,9 +35,10 @@ public class clawIntake {
         scissor.setDirection(Servo.Direction.REVERSE);
         scissor.setPosition(servoPositions.scissorRetract.getPosition());
 
-        intakeClaw = map.get(Servo.class,"intake");
+        slides = map.get(DcMotor.class, "slides");
+        slides.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-        slides = map.get(DcMotorEx.class, "slides");
+        intakeClaw = map.get(Servo.class,"intake");
     }
 
     @Deprecated
@@ -50,6 +51,10 @@ public class clawIntake {
     public void setScissor(double position){scissor.setPosition(position);}
 
     public void setClaw(double position){intakeClaw.setPosition(position);}
+
+    public void setSlides(double power){
+        slides.setPower(power);
+    }
 
     public void manualSequence(boolean toggle, double power, boolean reset) {
         switch (state) {
