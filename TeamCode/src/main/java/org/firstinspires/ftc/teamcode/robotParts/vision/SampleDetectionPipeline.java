@@ -22,10 +22,10 @@ public class SampleDetectionPipeline extends OpenCvPipeline {
     final double
             xPixels = 448,
             yPixels = 800,
-            cameraXPos = 5.0, //In init, primary axis (x is forwards/backwards) offset versus middle of the intake
-            cameraYPos = -2.0, //Offset in secondary axis versus middle of the intake
-            cameraZPos = 28.4, //Height of the mount
-            cameraAlpha = 42.47, //In degrees, will be converted to radians later, 0 means parallel to the floor.
+            cameraXPos = -2.0, //In init, primary axis (x is forwards/backwards) offset versus middle of the intake
+            cameraYPos = -8.9, //Offset in secondary axis versus middle of the intake
+            cameraZPos = 28.5, //Height of the mount
+            cameraAlpha = 43.13, //In degrees, will be converted to radians later, 0 means parallel to the floor.
             yDegreePerPixel = 25 * Math.sqrt(3025.0/821.0) / yPixels,//14:25 ratio on the camera * sqrt ( 55 degrees squared / (14^2 + 25^2) ) = horizontal FOV, divided by pixels to get degree per pixel TODO maybe regression better
             xDegreePerPixel = 14 * Math.sqrt(3025.0/821.0) / xPixels; //TODO maybe regression better
 
@@ -99,7 +99,7 @@ public class SampleDetectionPipeline extends OpenCvPipeline {
          */
         void inferX() {
             cameraXAngle = (cameraPosition.x - 0.5 * xPixels) * xDegreePerPixel;
-            actualX = (cameraZPos / Math.cos(Math.toRadians(cameraAlpha)))*Math.tan(Math.toRadians(cameraXAngle)) * scaleX(cameraYAngle);
+            actualX = (cameraZPos / Math.cos(Math.toRadians(cameraAlpha - cameraYAngle)))*Math.tan(Math.toRadians(cameraXAngle)) * scaleX(cameraYAngle);
             //TODO: correct for intake offset
         }
 
@@ -114,8 +114,8 @@ public class SampleDetectionPipeline extends OpenCvPipeline {
          *
          */
         void assignSamplePoints() {
-            score -= (int) actualY;
-            score -= (int) (2 * Math.abs(actualX));
+            score -= (int) actualY + cameraXPos;
+            score -= (int) Math.pow(actualX - cameraYPos, 2);
         }
 
         /**
@@ -168,6 +168,7 @@ public class SampleDetectionPipeline extends OpenCvPipeline {
          */
         findContours(input);
         getBestSample(internalSampleList, RED);
+        Imgproc.circle(input,bestSample.cameraPosition,15, WHITE);
 
         clientSampleList = new ArrayList<>(internalSampleList);
 
@@ -289,16 +290,18 @@ public class SampleDetectionPipeline extends OpenCvPipeline {
             if(debug) {
                 sample.inferY();
                 sample.inferX();
+                sample.assignSamplePoints();
                 drawRotatedRect(rotatedRectFitToContour, input, color);
                 drawRotatedRect(rotatedRectFitToContour, contoursOnPlainImageMat, color);
                 drawTagText(
                     rotatedRectFitToContour,
-//                (int) Math.round(angle) + " deg " +
-//                    (int) Math.round(rotatedRectFitToContour.size.area()) + " area " +
-                    sample.actualX + " x " +
-                    sample.actualY + " y",
+                  (int) Math.round(angle) + " deg " +
+//                  (int) Math.round(rotatedRectFitToContour.size.area()) + " area " +
+//                    Math.round(10 * (sample.actualX - cameraYPos)) + " x " +
+//                    Math.round(10 * (sample.actualY + cameraXPos)) + " y" +
 //                    (int) Math.round(sample.cameraXAngle) + " x " +
 //                    (long) sample.cameraYAngle + " y ",
+                    sample.score + " score ",
                     input, BLUE);
             }
         }
@@ -312,7 +315,7 @@ public class SampleDetectionPipeline extends OpenCvPipeline {
      */
     public Sample getBestSample(ArrayList<SampleDetectionPipeline.Sample> sampleList, Scalar color) {
         bestSample = new Sample();
-        bestSample.score = 0;
+        bestSample.score = -1E8;
         for (Sample sample : sampleList) {
             //TODO: remove wrong colors
 //            if (sample.color != color) {
@@ -345,6 +348,7 @@ public class SampleDetectionPipeline extends OpenCvPipeline {
                 3, // Font size
                 color, // Font color
                 1); // Font thickness
+        Imgproc.line(mat, new Point(224,0), new Point(224,800), color, 2);
     }
 
     static void drawRotatedRect(RotatedRect rect, Mat drawOn, Scalar color) {

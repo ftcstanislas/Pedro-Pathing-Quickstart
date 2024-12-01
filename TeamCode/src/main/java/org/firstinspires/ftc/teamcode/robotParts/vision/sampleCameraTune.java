@@ -44,9 +44,9 @@ public class sampleCameraTune extends LinearOpMode {
             for (SampleDetectionPipeline.Sample sample : currentDetections) {
                 telemetry.addData("x", sample.actualX);
                 telemetry.addData("y", sample.actualY);
-                telemetry.addData("standard y", 28.4 * Math.tan(Math.toRadians(42.47)));
-                telemetry.addData("cos", 28.4 / Math.cos(Math.toRadians(42.47)));
-                telemetry.addData("standard x", (28.4 / Math.cos(Math.toRadians(42.47)))*Math.tan(Math.toRadians(sample.cameraXAngle)));
+                telemetry.addData("standard y", 28.5 * Math.tan(Math.toRadians(43.13)));
+                telemetry.addData("cos", 28.5 / Math.cos(Math.toRadians(43.13)));
+                telemetry.addData("standard x", (28.5 / Math.cos(Math.toRadians(43.13)))*Math.tan(Math.toRadians(sample.cameraXAngle)));
                 telemetry.update();
             }
 

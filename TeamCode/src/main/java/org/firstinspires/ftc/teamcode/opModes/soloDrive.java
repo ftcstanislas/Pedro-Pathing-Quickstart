@@ -61,7 +61,7 @@ public class soloDrive extends LinearOpMode {
                 clawOpen ^= true;
             }
 
-            intake.setSlidesWithLimit(0.3*current.right_stick_y);
+            intake.setSlidesWithLimit(0.4*current.right_stick_y);
 
             outtake.moveHook(-gamepad2.left_trigger + gamepad2.right_trigger);
 

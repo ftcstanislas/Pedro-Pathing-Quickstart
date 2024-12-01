@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.opModes.tests;
 
 import com.acmerobotics.dashboard.config.Config;
+import com.arcrobotics.ftclib.controller.PIDController;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -12,18 +13,25 @@ import org.firstinspires.ftc.teamcode.robotParts.servoPositions;
 public class intakeTest extends LinearOpMode {
     clawIntake intake = new clawIntake();
 
-    public static double left, right;
+    double left = 0, right = 0;
+
+    public static double k = 0, p = 0, i = 0, d = 0;
+
+    public static int target;
+
+    PIDController pid = new PIDController(p,i,d);
 
     @Override
     public void runOpMode() throws InterruptedException {
         intake.init(hardwareMap);
+        pid.setPID(p,i,d);
 
         waitForStart();
         if (isStopRequested()) return;
 
         while (opModeIsActive()) {
-            left = -gamepad1.left_stick_y;
-            right = -gamepad1.right_stick_y;
+//            left = -gamepad1.left_stick_y;
+//            right = -gamepad1.right_stick_y;
 //            if (gamepad1.dpad_down) {
 //                intake.setDiffy(servoPositions.rollerSide.getDifferential());
 //            } else if (gamepad1.dpad_left) {
@@ -33,12 +41,11 @@ public class intakeTest extends LinearOpMode {
 //            } else if (gamepad1.dpad_up) {
 //                intake.setDiffy(servoPositions.rollerTransfer.getDifferential());
 //            }
-            intake.differentialLeft.setPosition(left);
-            intake.differentialRight.setPosition(right);
-
-//            intake.setScissor(0.6*gamepad1.left_stick_y+0.4);
-            if (gamepad1.x) intake.setScissor(servoPositions.scissorRetract.getPosition());
-            else if (gamepad1.y) intake.setScissor(servoPositions.scissorExtend.getPosition());
+//            intake.differentialLeft.setPosition(left);
+//            intake.differentialRight.setPosition(right);
+//            intake.setDiffyAngle(left);
+            
+            intake.setSlidesWithLimit(pid.calculate(target, intake.slides.getCurrentPosition()));
 
             if (gamepad1.a) {
                 intake.setClaw(servoPositions.intakeRelease.getPosition());
@@ -48,7 +55,6 @@ public class intakeTest extends LinearOpMode {
 
             telemetry.addData("wristLeft", left);
             telemetry.addData("wristRight",right);
-            telemetry.addData("scissor pos", intake.scissor.getPosition());
             telemetry.update();
         }
     }

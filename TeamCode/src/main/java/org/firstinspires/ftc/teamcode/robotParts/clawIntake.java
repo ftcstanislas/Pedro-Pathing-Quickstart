@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.robotParts;
 
+import com.arcrobotics.ftclib.controller.PIDController;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -26,7 +28,14 @@ public class clawIntake {
 
     public DcMotorEx slides;
 
+    public static double k = 0, p = 0, i = 0, d = 0;
+
+    PIDController pid = new PIDController(p,i,d);
+
     final int slideMax = 0, slideMin = -480;
+
+    final double maxExtend = 41.0, maxWristAngle = 390.0, minWristAngle = 60.0;
+
     int slidePos;
 
     public void init(HardwareMap map) {
@@ -36,16 +45,29 @@ public class clawIntake {
 //        setDiffy(servoPositions.clawIntakeNarrow.getDifferential()); //TODO: starting pos
 
         slides = map.get(DcMotorEx.class, "slides");
+        slides.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        slides.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         intakeClaw = map.get(Servo.class,"intake");
+
+        pid.setPID(p,i,d);
     }
 
     @Deprecated
-    public void setWrist(double position){
-        differentialLeft.setPosition(position);}
+    public void setWrist(double position){differentialLeft.setPosition(position);}
+
     public void setDiffy(double[] positions) {
         differentialLeft.setPosition(positions[0]);
         differentialRight.setPosition(positions[1]);
+    }
+    public void setDiffyAngle(double angle) {
+        while (angle > maxWristAngle) {
+            angle -= 180;
+        }
+        while (angle < minWristAngle) {
+            angle += 180;
+        }
+        setDiffy(new double[] {(angle - minWristAngle) / (maxWristAngle - minWristAngle), (angle - minWristAngle) / (maxWristAngle - minWristAngle)});
     }
     public void setScissor(double position){scissor.setPosition(position);}
 
@@ -54,6 +76,11 @@ public class clawIntake {
     public void setSlidesWithLimit(double power){
         slidePos = slides.getCurrentPosition();
         slides.setPower(((power < 0 && slidePos < slideMin) || (power > 0 && slidePos > slideMax)) ? 0 : power);
+    }
+
+    public void slidesPID(int position) {
+        slidePos = slides.getCurrentPosition();
+        pid.calculate(position,slidePos);
     }
 
     public void manualSequence(boolean toggle, double power, boolean reset) {
