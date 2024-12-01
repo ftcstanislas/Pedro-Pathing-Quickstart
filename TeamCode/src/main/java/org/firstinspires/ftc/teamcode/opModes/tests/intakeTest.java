@@ -17,11 +17,7 @@ public class intakeTest extends LinearOpMode {
 
     double left = 0, right = 0, pos, power;
 
-    public static double p = -0.0015, i = -0.1, d = -0.1;
-
-    public static int target;
-
-    PIDController pid = new PIDController(p,i,d);
+    public static int cm;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -46,12 +42,7 @@ public class intakeTest extends LinearOpMode {
 //            intake.differentialLeft.setPosition(left);
 //            intake.differentialRight.setPosition(right);
 //            intake.setDiffyAngle(left);
-            pid.setPID(p,i,d);
-            pos = intake.slides.getCurrentPosition();
-            power = pid.calculate(target, pos);
-            if (power > 0.6) power = 0.6;
-            else if (power < -0.6) power = -0.6;
-            intake.setSlidesWithLimit(power);
+            intake.slideToCentimeter(cm);
 
             if (gamepad1.a) {
                 intake.setClaw(servoPositions.intakeRelease.getPosition());
@@ -61,7 +52,7 @@ public class intakeTest extends LinearOpMode {
 
             telemetry.addData("wristLeft", left);
             telemetry.addData("wristRight",right);
-            telemetry.addData("target", target);
+            telemetry.addData("target", cm);
             telemetry.addData("pos", pos);
             telemetry.addData("power", power);
             telemetry.update();

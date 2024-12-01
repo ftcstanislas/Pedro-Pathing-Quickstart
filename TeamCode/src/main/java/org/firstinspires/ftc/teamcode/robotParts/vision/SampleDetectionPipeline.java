@@ -168,8 +168,9 @@ public class SampleDetectionPipeline extends OpenCvPipeline {
          */
         findContours(input);
         getBestSample(internalSampleList, RED);
-        Imgproc.circle(input,bestSample.cameraPosition,15, WHITE);
-
+        if (bestSample.cameraPosition != null) {
+            Imgproc.circle(input, bestSample.cameraPosition, 15, WHITE);
+        }
         clientSampleList = new ArrayList<>(internalSampleList);
 
 
@@ -314,26 +315,29 @@ public class SampleDetectionPipeline extends OpenCvPipeline {
      * @return
      */
     public Sample getBestSample(ArrayList<SampleDetectionPipeline.Sample> sampleList, Scalar color) {
-        bestSample = new Sample();
-        bestSample.score = -1E8;
-        for (Sample sample : sampleList) {
-            //TODO: remove wrong colors
-//            if (sample.color != color) {
-//                sampleList.remove(sample);
-//                break;
-//            }
+        if (sampleList.isEmpty()) return null;
+        else {
+            bestSample = new Sample();
+            bestSample.score = -1E8;
+            for (Sample sample : sampleList) {
+                //TODO: remove wrong colors
+    //            if (sample.color != color) {
+    //                sampleList.remove(sample);
+    //                break;
+    //            }
 
-//        sample.yFromBorder;
-//        sample.xFromBorder;
-            //TODO: if too close to border remove from sampleList
+    //        sample.yFromBorder;
+    //        sample.xFromBorder;
+                //TODO: if too close to border remove from sampleList
 
-            sample.inferY();
-            sample.inferX();
-            sample.inferAngle();
-            sample.assignSamplePoints();
-            if (sample.score > bestSample.score) bestSample = sample;
+                sample.inferY();
+                sample.inferX();
+                sample.inferAngle();
+                sample.assignSamplePoints();
+                if (sample.score > bestSample.score) bestSample = sample;
+            }
+            return bestSample;
         }
-        return bestSample;
     }
 
     static void drawTagText(RotatedRect rect, String text, Mat mat, Scalar color) {

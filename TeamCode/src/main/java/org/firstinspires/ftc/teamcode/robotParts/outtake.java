@@ -45,6 +45,8 @@ public class outtake {
     public void init(HardwareMap map) {
         arm = map.get(DcMotorEx.class, "arm");
         arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        arm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         arm.setDirection(DcMotorSimple.Direction.REVERSE);
 
         hookLeft = map.get(DcMotorEx.class,"hookLeft");

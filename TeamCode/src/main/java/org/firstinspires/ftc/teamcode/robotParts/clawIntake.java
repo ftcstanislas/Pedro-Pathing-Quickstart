@@ -20,7 +20,7 @@ public class clawIntake {
         AWAY
     }
 
-    double time;
+    double time, power;
 
     public intakeSequence state = intakeSequence.IDLING;
 
@@ -28,7 +28,7 @@ public class clawIntake {
 
     public DcMotorEx slides;
 
-    public static double k = 0, p = 0, i = 0, d = 0;
+    final double p = -0.002, i = -0.1, d = -0.1;
 
     PIDController pid = new PIDController(p,i,d);
 
@@ -42,7 +42,7 @@ public class clawIntake {
         differentialLeft = map.get(Servo.class, "wristLeft");
 
         differentialRight = map.get(Servo.class, "wristRight");
-//        setDiffy(servoPositions.clawIntakeNarrow.getDifferential()); //TODO: starting pos
+        setDiffyAngle(0.0);
 
         slides = map.get(DcMotorEx.class, "slides");
         slides.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -78,10 +78,15 @@ public class clawIntake {
         slides.setPower(((power < 0 && slidePos < slideMin) || (power > 0 && slidePos > slideMax)) ? 0 : power);
     }
 
-    public void slidesPID(int position) {
+    public void slidesPID(int target) {
         slidePos = slides.getCurrentPosition();
-        pid.calculate(position,slidePos);
+        power = pid.calculate(target, slidePos);
+        if (power > 0.5) power = 0.5;
+        else if (power < -0.5) power = -0.5;
+        slides.setPower(power);
     }
+
+    public void slideToCentimeter(double cm) {slidesPID((int) (cm * (-450.0/40.5)));}
 
     public void manualSequence(boolean toggle, double power, boolean reset) {
         switch (state) {
