@@ -56,9 +56,9 @@ public class FollowerConstants {
 
     // Heading error PIDF coefficients
     public static CustomPIDFCoefficients headingPIDFCoefficients = new CustomPIDFCoefficients(
-            1,
+            -1.25,
             0,
-            0,
+            0.001,
             0);
 
     // Feed forward constant added on to the heading PIDF
@@ -67,7 +67,7 @@ public class FollowerConstants {
 
     // Drive PIDF coefficients
     public static CustomFilteredPIDFCoefficients drivePIDFCoefficients = new CustomFilteredPIDFCoefficients(
-            0.025,
+            0.005,
             0,
             0.00001,
             0.6,
@@ -78,7 +78,7 @@ public class FollowerConstants {
 
     // Kalman filter parameters for the MecanumDrivetrain.java error Kalman filter
     public static KalmanFilterParameters driveKalmanFilterParameters = new KalmanFilterParameters(
-            6,
+            8,
             1);
 
 

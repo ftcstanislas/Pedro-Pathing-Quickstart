@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.opModes.tests;
 
+import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.arcrobotics.ftclib.controller.PIDController;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -13,9 +15,9 @@ import org.firstinspires.ftc.teamcode.robotParts.servoPositions;
 public class intakeTest extends LinearOpMode {
     clawIntake intake = new clawIntake();
 
-    double left = 0, right = 0;
+    double left = 0, right = 0, pos, power;
 
-    public static double k = 0, p = 0, i = 0, d = 0;
+    public static double p = -0.0015, i = -0.1, d = -0.1;
 
     public static int target;
 
@@ -24,7 +26,7 @@ public class intakeTest extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
         intake.init(hardwareMap);
-        pid.setPID(p,i,d);
+        telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
         waitForStart();
         if (isStopRequested()) return;
@@ -44,8 +46,12 @@ public class intakeTest extends LinearOpMode {
 //            intake.differentialLeft.setPosition(left);
 //            intake.differentialRight.setPosition(right);
 //            intake.setDiffyAngle(left);
-            
-            intake.setSlidesWithLimit(pid.calculate(target, intake.slides.getCurrentPosition()));
+            pid.setPID(p,i,d);
+            pos = intake.slides.getCurrentPosition();
+            power = pid.calculate(target, pos);
+            if (power > 0.6) power = 0.6;
+            else if (power < -0.6) power = -0.6;
+            intake.setSlidesWithLimit(power);
 
             if (gamepad1.a) {
                 intake.setClaw(servoPositions.intakeRelease.getPosition());
@@ -55,6 +61,9 @@ public class intakeTest extends LinearOpMode {
 
             telemetry.addData("wristLeft", left);
             telemetry.addData("wristRight",right);
+            telemetry.addData("target", target);
+            telemetry.addData("pos", pos);
+            telemetry.addData("power", power);
             telemetry.update();
         }
     }

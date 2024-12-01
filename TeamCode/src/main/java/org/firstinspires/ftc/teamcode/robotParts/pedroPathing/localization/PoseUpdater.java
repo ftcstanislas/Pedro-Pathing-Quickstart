@@ -27,7 +27,7 @@ public class PoseUpdater {
 
     private Localizer localizer;
 
-    private Pose startingPose = new Pose(0,0,0);
+    private Pose startingPose = new Pose(0,0,0); //-48, 48, -90
 
     private Pose currentPose = startingPose;
 
@@ -39,8 +39,8 @@ public class PoseUpdater {
 
     private Vector currentAcceleration = new Vector();
 
-    private double xOffset = 0;
-    private double yOffset = 0;
+    private double xOffset = 0;  //-48
+    private double yOffset = 0;  //48
     private double headingOffset = 0;
 
     private long previousPoseTime;
