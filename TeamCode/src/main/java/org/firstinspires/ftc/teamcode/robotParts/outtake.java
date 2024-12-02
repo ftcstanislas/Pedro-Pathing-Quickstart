@@ -36,7 +36,7 @@ public class outtake {
 
     double leftPos, rightPos, armPos, time;
 
-    final double k = 0, p = 0, i = 0, d = 0;
+    final double p = 0.3, i = 0, d = 0.015;
     int ticks;
     double power;
 
@@ -90,7 +90,7 @@ public class outtake {
     public void barPID(int target) {
         rightPos = barRight.getCurrentPosition();
         power = pid.calculate(ticks,target);
-        moveBar(power,k);
+        moveBar(power,0);
     }
 
     public void moveArm(double outtakePowerLocal) {arm.setPower(outtakePowerLocal);}
@@ -103,6 +103,8 @@ public class outtake {
     public void armPID(int target) {
         armPos = arm.getCurrentPosition();
         power = pid.calculate(armPos,target);
+        if (power > 0.5) power = 0.5;
+        else if (power < -0.5) power = -0.5;
         moveArm(power);
     }
 

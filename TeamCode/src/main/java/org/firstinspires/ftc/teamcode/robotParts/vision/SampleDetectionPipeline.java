@@ -67,7 +67,7 @@ public class SampleDetectionPipeline extends OpenCvPipeline {
     /*
      * Colors for drawing on the Driver Station.
      */
-    static final Scalar
+    public static final Scalar
             RED = new Scalar(255, 0, 0),
             BLUE = new Scalar(0, 0, 255),
             YELLOW = new Scalar(255, 255, 0),
@@ -90,7 +90,7 @@ public class SampleDetectionPipeline extends OpenCvPipeline {
          */
         void inferY() {
             cameraYAngle = (cameraPosition.y - 0.5 * yPixels) * yDegreePerPixel;
-            actualY = cameraZPos * Math.tan(Math.toRadians(cameraAlpha - cameraYAngle));
+            actualY = cameraZPos * Math.tan(Math.toRadians(cameraAlpha - cameraYAngle)) + cameraXPos;
             //TODO: correct for intake offset
         }
 
@@ -99,7 +99,7 @@ public class SampleDetectionPipeline extends OpenCvPipeline {
          */
         void inferX() {
             cameraXAngle = (cameraPosition.x - 0.5 * xPixels) * xDegreePerPixel;
-            actualX = (cameraZPos / Math.cos(Math.toRadians(cameraAlpha - cameraYAngle)))*Math.tan(Math.toRadians(cameraXAngle)) * scaleX(cameraYAngle);
+            actualX = (cameraZPos / Math.cos(Math.toRadians(cameraAlpha - cameraYAngle)))*Math.tan(Math.toRadians(cameraXAngle)) * scaleX(cameraYAngle) - cameraYPos;
             //TODO: correct for intake offset
         }
 
@@ -114,8 +114,8 @@ public class SampleDetectionPipeline extends OpenCvPipeline {
          *
          */
         void assignSamplePoints() {
-            score -= (int) actualY + cameraXPos;
-            score -= (int) Math.pow(actualX - cameraYPos, 2);
+            score -= (int) actualY;
+            score -= (int) Math.pow(actualX, 2);
         }
 
         /**
@@ -168,7 +168,7 @@ public class SampleDetectionPipeline extends OpenCvPipeline {
          */
         findContours(input);
         getBestSample(internalSampleList, RED);
-        if (bestSample.cameraPosition != null) {
+        if (bestSample != null) {
             Imgproc.circle(input, bestSample.cameraPosition, 15, WHITE);
         }
         clientSampleList = new ArrayList<>(internalSampleList);
@@ -338,6 +338,11 @@ public class SampleDetectionPipeline extends OpenCvPipeline {
             }
             return bestSample;
         }
+    }
+
+    public double[] getBestSampleInformation(ArrayList<SampleDetectionPipeline.Sample> sampleList, Scalar color) {
+        bestSample = getBestSample(sampleList, color);
+        return new double[] {bestSample.actualX, bestSample.actualY, bestSample.grabAngle};
     }
 
     static void drawTagText(RotatedRect rect, String text, Mat mat, Scalar color) {

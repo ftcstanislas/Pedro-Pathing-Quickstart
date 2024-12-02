@@ -16,6 +16,7 @@ import org.firstinspires.ftc.teamcode.robotParts.pedroPathing.pathGeneration.Pat
 import org.firstinspires.ftc.teamcode.robotParts.pedroPathing.pathGeneration.PathChain;
 import org.firstinspires.ftc.teamcode.robotParts.pedroPathing.pathGeneration.Point;
 import org.firstinspires.ftc.teamcode.robotParts.pedroPathing.util.Timer;
+import org.firstinspires.ftc.teamcode.robotParts.servoPositions;
 
 import java.util.List;
 
@@ -26,6 +27,10 @@ public class Auton2 extends LinearOpMode {
     private Follower follower;
     private Path forwards;
     private Path backwards;
+
+    int state = 0;
+
+    double timer;
 
     @Override
     public void runOpMode() {
@@ -40,7 +45,7 @@ public class Auton2 extends LinearOpMode {
 
         follower = new Follower(hardwareMap);
 
-        forwards = new Path(new BezierLine(new Point(0,0, Point.CARTESIAN), new Point(33,14, Point.CARTESIAN)));
+        forwards = new Path(new BezierLine(new Point(0,0, Point.CARTESIAN), new Point(32,14, Point.CARTESIAN)));
         forwards.setConstantHeadingInterpolation(0);
 
         follower.followPath(forwards);
@@ -56,7 +61,35 @@ public class Auton2 extends LinearOpMode {
         waitForStart();
         if (isStopRequested()) return;
         while (opModeIsActive()) {
-            follower.update();
+            switch (state) {
+                case 0:
+                    intake.setDiffy(servoPositions.clawDrop.getDifferential());
+                    follower.update();
+                    if (!follower.isBusy()) {
+                        state++;
+                    }
+                    break;
+                case 1:
+                    outtake.armPID(600);
+                    if (outtake.arm.getCurrentPosition() > 590) {
+                        state++;
+                    }
+                    break;
+                case 2:
+                    outtake.setClaw(servoPositions.outtakeRelease.getPosition());
+                    timer = System.currentTimeMillis();
+                    state++;
+                    break;
+                case 3:
+                    if (timer + 100 < System.currentTimeMillis()){
+                        state++;
+                    }
+                case 4:
+                    outtake.armPID(0);
+            }
+            telemetry.addData("follower", !follower.isBusy());
+            telemetry.addData("pos", outtake.arm.getCurrentPosition() > 690);
+            telemetry.addData("pos", outtake.arm.getCurrentPosition());
             telemetry.update();
         }
     }

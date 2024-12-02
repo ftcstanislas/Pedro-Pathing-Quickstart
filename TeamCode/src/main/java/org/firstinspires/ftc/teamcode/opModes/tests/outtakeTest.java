@@ -13,12 +13,9 @@ public class outtakeTest extends LinearOpMode {
     double power;
     int pos;
     public static int target;
-    public static double p = 0, i = 0, d = 0;
     @Override
     public void runOpMode() throws InterruptedException {
         outtake outtake = new outtake();
-
-        PIDController pid = new PIDController(p,i,d);
 
         waitForStart();
         if (isStopRequested()) return;
@@ -26,13 +23,7 @@ public class outtakeTest extends LinearOpMode {
         outtake.init(hardwareMap);
 
         while (opModeIsActive()) {
-            pid.setPID(p,i,d);
-            pos = outtake.arm.getCurrentPosition();
-            power = pid.calculate(pos,target);
-            if (power > 0.5) power = 0.5;
-            else if (power < -0.5) power = -0.5;
-            outtake.moveArm(power);
-
+            outtake.armPID(target);
             telemetry.addData("power",power);
             telemetry.addData("pos",pos);
             telemetry.update();

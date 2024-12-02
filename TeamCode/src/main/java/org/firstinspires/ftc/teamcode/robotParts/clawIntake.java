@@ -28,7 +28,7 @@ public class clawIntake {
 
     public DcMotorEx slides;
 
-    final double p = -0.002, i = -0.1, d = -0.1;
+    final double p = -0.00225, i = -0.1, d = -0.1;
 
     PIDController pid = new PIDController(p,i,d);
 
@@ -78,15 +78,16 @@ public class clawIntake {
         slides.setPower(((power < 0 && slidePos < slideMin) || (power > 0 && slidePos > slideMax)) ? 0 : power);
     }
 
-    public void slidesPID(int target) {
+    public double slidesPID(int target) {
         slidePos = slides.getCurrentPosition();
         power = pid.calculate(target, slidePos);
         if (power > 0.5) power = 0.5;
         else if (power < -0.5) power = -0.5;
         slides.setPower(power);
+        return slidePos - target;
     }
 
-    public void slideToCentimeter(double cm) {slidesPID((int) (cm * (-450.0/40.5)));}
+    public double slideToCentimeter(double cm) {return slidesPID((int) (cm * (-450.0/40.5))) * (40.5/450);}
 
     public void manualSequence(boolean toggle, double power, boolean reset) {
         switch (state) {

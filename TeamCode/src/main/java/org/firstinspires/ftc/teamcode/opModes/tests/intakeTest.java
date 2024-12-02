@@ -15,7 +15,7 @@ import org.firstinspires.ftc.teamcode.robotParts.servoPositions;
 public class intakeTest extends LinearOpMode {
     clawIntake intake = new clawIntake();
 
-    double left = 0, right = 0, pos, power;
+    double left = 0, right = 0, pos, power, delta;
 
     public static int cm;
 
@@ -42,7 +42,7 @@ public class intakeTest extends LinearOpMode {
 //            intake.differentialLeft.setPosition(left);
 //            intake.differentialRight.setPosition(right);
 //            intake.setDiffyAngle(left);
-            intake.slideToCentimeter(cm);
+            delta = intake.slideToCentimeter(cm);
 
             if (gamepad1.a) {
                 intake.setClaw(servoPositions.intakeRelease.getPosition());
@@ -55,6 +55,7 @@ public class intakeTest extends LinearOpMode {
             telemetry.addData("target", cm);
             telemetry.addData("pos", pos);
             telemetry.addData("power", power);
+            telemetry.addData("delta", delta);
             telemetry.update();
         }
     }
