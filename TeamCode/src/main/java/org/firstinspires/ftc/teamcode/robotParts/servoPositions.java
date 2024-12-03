@@ -22,7 +22,8 @@ public enum servoPositions {
 
     clawDrop(new double[]{1.0, 0.5}),
     clawIntakeWide(new double[]{0.2,0.2}),
-    clawIntakeNarrow(new double[]{0.5,0.5});
+    clawIntakeNarrow(new double[]{0.5,0.5}),
+    clawIntakeInit(new double[]{0.42, 0.59});//0.4, 0.6
 
     private double position;
     public double getPosition(){return this.position;}

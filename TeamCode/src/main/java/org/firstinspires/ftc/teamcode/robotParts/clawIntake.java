@@ -42,7 +42,7 @@ public class clawIntake {
         differentialLeft = map.get(Servo.class, "wristLeft");
 
         differentialRight = map.get(Servo.class, "wristRight");
-        setDiffyAngle(0.0);
+        setDiffy(servoPositions.clawIntakeInit.getDifferential());
 
         slides = map.get(DcMotorEx.class, "slides");
         slides.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);

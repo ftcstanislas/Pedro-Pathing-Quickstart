@@ -22,7 +22,8 @@ public class soloDrive extends LinearOpMode {
 
     volatile Gamepad last = new Gamepad();
     volatile Gamepad current = new Gamepad();
-    boolean clawOpen = false, intakeOpen = true;
+    boolean clawOpen = false, intakeOpen = true, armManual = false;
+    int target;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -54,7 +55,22 @@ public class soloDrive extends LinearOpMode {
             else if (current.dpad_left && !last.dpad_left) intake.setDiffy(servoPositions.clawIntakeNarrow.getDifferential());
             else if (current.dpad_right && !last.dpad_right) intake.setDiffy(servoPositions.clawIntakeWide.getDifferential());
 
-            outtake.moveArm(-current.left_trigger + current.right_trigger);
+            if (current.left_trigger != 0 || current.right_trigger != 0) armManual = true;
+
+            if (current.b) {
+                target = 650;
+                armManual = false;
+            }
+            else if (current.x) {
+                target = 0;
+                armManual = false;
+            }
+
+            if (armManual) {
+                outtake.moveArm(-current.left_trigger + current.right_trigger);
+            } else {
+                outtake.armPID(target);
+            }
 
             if (current.a && !last.a) {
                 outtake.setClaw((clawOpen) ? servoPositions.outtakeGrip.getPosition() : servoPositions.outtakeRelease.getPosition()); //Toggle using the ternary operator, see GM260c.

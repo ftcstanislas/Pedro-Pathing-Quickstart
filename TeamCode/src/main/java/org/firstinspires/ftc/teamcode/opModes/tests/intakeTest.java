@@ -41,7 +41,7 @@ public class intakeTest extends LinearOpMode {
 //            }
 //            intake.differentialLeft.setPosition(left);
 //            intake.differentialRight.setPosition(right);
-//            intake.setDiffyAngle(left);
+            intake.setDiffyAngle(left);
             delta = intake.slideToCentimeter(cm);
 
             if (gamepad1.a) {

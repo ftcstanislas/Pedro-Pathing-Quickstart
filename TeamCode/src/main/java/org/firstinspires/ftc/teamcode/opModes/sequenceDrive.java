@@ -1,9 +1,8 @@
-package org.firstinspires.ftc.teamcode.opModes.tests;
+package org.firstinspires.ftc.teamcode.opModes;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.hardware.lynx.LynxModule;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Gamepad;
@@ -11,11 +10,11 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.robotParts.MecanumDrivetrain;
 import org.firstinspires.ftc.teamcode.robotParts.clawIntake;
+import org.firstinspires.ftc.teamcode.robotParts.outtake;
 import org.firstinspires.ftc.teamcode.robotParts.pedroPathing.follower.Follower;
 import org.firstinspires.ftc.teamcode.robotParts.pedroPathing.pathGeneration.BezierLine;
 import org.firstinspires.ftc.teamcode.robotParts.pedroPathing.pathGeneration.Path;
 import org.firstinspires.ftc.teamcode.robotParts.pedroPathing.pathGeneration.Point;
-import org.firstinspires.ftc.teamcode.robotParts.rollerIntake;
 import org.firstinspires.ftc.teamcode.robotParts.servoPositions;
 import org.firstinspires.ftc.teamcode.robotParts.vision.SampleDetectionPipeline;
 import org.openftc.easyopencv.OpenCvCamera;
@@ -25,13 +24,14 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 import java.util.ArrayList;
 import java.util.List;
 
-@TeleOp(name = "sequenceTest",group = "TeleOp")
-public class sequenceTest extends LinearOpMode {
+@TeleOp(name = "sequenceDrive",group = "TeleOp")
+public class sequenceDrive extends LinearOpMode {
     OpenCvCamera camera;
     final SampleDetectionPipeline sampleDetectionPipeline = new SampleDetectionPipeline(true);
 
     clawIntake intake = new clawIntake();
     MecanumDrivetrain drive = new MecanumDrivetrain();
+    outtake outtake = new outtake();
 
     private Follower follower;
     private Path sampleY;
@@ -44,7 +44,7 @@ public class sequenceTest extends LinearOpMode {
 
     double slideTarget, timer, slideDelta;
 
-    int intakeCase = 0;
+    int intakeCase = 0, outtakeCase = 0;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -73,6 +73,7 @@ public class sequenceTest extends LinearOpMode {
         follower = new Follower(hardwareMap);
 
         intake.init(hardwareMap);
+        outtake.init(hardwareMap);
         drive.init(hardwareMap);
 
         waitForStart();
@@ -112,7 +113,7 @@ public class sequenceTest extends LinearOpMode {
                     }
                 case 2:
                     follower.update();
-                    slideTarget = bestSampleInformation[1] + .5;
+                    slideTarget = bestSampleInformation[1] + 2.5;
                     intake.setDiffyAngle(bestSampleInformation[2]);
                     if (!follower.isBusy() && Math.abs(slideDelta) < 3.5) {
                         intakeCase++;
@@ -132,15 +133,36 @@ public class sequenceTest extends LinearOpMode {
                         slideTarget = 0;
                         intakeCase = 0;
                     }
-                case 5:
-                    if (current.y && !last.y) intakeCase = 0;
-                    drive.robotCentric(-current.left_stick_y, current.left_stick_x, -current.right_stick_x);
-                    break;
             }
 
-//            intake.manualSequence(current.x && !last.x, current.right_trigger - current.left_trigger, current.y);
-
             slideDelta = intake.slideToCentimeter(slideTarget);
+
+            switch (outtakeCase) {
+                case 0:
+                    if (current.a && !last.a) {
+                        outtake.setClaw(servoPositions.outtakeGrip.getPosition());
+                        outtakeCase++;
+                    }
+                    break;
+                case 1:
+                    if (current.a && !last.a) {
+                        outtakeCase++;
+                    }
+                    break;
+                case 2:
+                    outtake.moveArm(0.7);
+                    if (!current.a && last.a) {
+                        outtake.setClaw(servoPositions.outtakeRelease.getPosition());
+                        outtakeCase++;
+                    }
+                    break;
+                case 3:
+                    outtake.armPID(0);
+                    if (outtake.arm.getCurrentPosition() < 20) {
+                        outtake.moveArm(0);
+                        outtakeCase = 0;
+                    }
+            }
 
             if (bestSampleInformation != null) {
                 telemetry.addData("x", bestSampleInformation[0]);
@@ -148,7 +170,8 @@ public class sequenceTest extends LinearOpMode {
                 telemetry.addData("angle", bestSampleInformation[2]);
                 telemetry.addData("delta", slideDelta);
             }
-            telemetry.addData("case", intakeCase);
+            telemetry.addData("intakeCase", intakeCase);
+            telemetry.addData("outtakeCase", outtakeCase);
             telemetry.update();
         }
     }

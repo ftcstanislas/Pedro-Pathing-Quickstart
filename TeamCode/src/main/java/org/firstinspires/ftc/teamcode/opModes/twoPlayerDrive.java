@@ -29,6 +29,8 @@ public class twoPlayerDrive extends LinearOpMode {
 
     boolean clawOpen = false, armScoring = false, scissorOut = false, intakeOpen = true;
 
+    int outtakeCase = 0;
+
     @Override
     public void runOpMode() throws InterruptedException {
         List<LynxModule> allHubs = hardwareMap.getAll(LynxModule.class);
@@ -47,53 +49,65 @@ public class twoPlayerDrive extends LinearOpMode {
         if (isStopRequested()) return;
 
         while (opModeIsActive()) {
-            last1.copy(current1);
             last2.copy(current2);
-            current1.copy(gamepad1);
+            last1.copy(current1);
             current2.copy(gamepad2);
+            current1.copy(gamepad1);
 
             if (current2.y && !last2.y) {
                 intake.setClaw((intakeOpen) ? servoPositions.intakeGrip.getPosition() : servoPositions.intakeRelease.getPosition()); //Toggle using the ternary operator, see GM260c.
                 intakeOpen ^= true;
             }
-            if (scissorOut) {
-                if (current2.dpad_left) {
-                    intake.setDiffy(servoPositions.clawIntakeNarrow.getDifferential());
-                } else if (current2.dpad_right) {
-                    intake.setDiffy(servoPositions.clawIntakeWide.getDifferential());
-                }
-                if (current2.left_bumper && !last2.left_bumper) {
-                    scissorOut = false;
-                    intake.setScissor(servoPositions.scissorRetract.getPosition());
-                    intake.setDiffy(servoPositions.clawDrop.getDifferential());
-                }
-            } else {
-                if (current2.right_bumper && !last2.right_bumper) {
-                    scissorOut = true;
-                    intake.setScissor(servoPositions.scissorExtend.getPosition());
-                    intake.setDiffy(servoPositions.clawIntakeNarrow.getDifferential());
-                    intake.setClaw(servoPositions.intakeRelease.getPosition());
-                }
+
+            if (current2.dpad_up && !last2.dpad_up)
+                intake.setDiffy(servoPositions.clawDrop.getDifferential());
+            else if (current2.dpad_left && !last2.dpad_left)
+                intake.setDiffy(servoPositions.clawIntakeNarrow.getDifferential());
+            else if (current2.dpad_right && !last2.dpad_right)
+                intake.setDiffy(servoPositions.clawIntakeWide.getDifferential());
+
+            switch (outtakeCase) {
+                case 0:
+                    if (current1.a && !last1.a) {
+                        outtake.setClaw(servoPositions.outtakeGrip.getPosition());
+                        outtakeCase++;
+                    }
+                    break;
+                case 1:
+                    if (current1.a && !last1.a) {
+                        outtakeCase++;
+                    }
+                    break;
+                case 2:
+                    outtake.moveArm(0.7);
+                    if (!current1.a && last1.a) {
+                        outtake.setClaw(servoPositions.outtakeRelease.getPosition());
+                        outtakeCase++;
+                    }
+                    break;
+                case 3:
+                    outtake.armPID(0);
+                    if (outtake.arm.getCurrentPosition() < 20) {
+                        outtake.moveArm(0);
+                        outtakeCase = 0;
+                    }
+
+                    if (current1.a && !last1.a) {
+                        outtake.setClaw((clawOpen) ? servoPositions.outtakeGrip.getPosition() : servoPositions.outtakeRelease.getPosition()); //Toggle using the ternary operator, see GM260c.
+                        clawOpen ^= true;
+                    }
+
+                    intake.setSlidesWithLimit(0.4 * current2.right_stick_y);
+
+                    outtake.moveHook(-gamepad2.left_trigger + gamepad2.right_trigger);
+
+//            drive.outdatedRobotCentric(drive.toPolar(current.left_stick_x,-current.left_stick_y), -current.right_stick_x);
+                    drive.robotCentric(-current1.left_stick_y, current1.left_stick_x, -current1.right_stick_x);
+
+                    telemetry.addData("arm pos", outtake.arm.getCurrentPosition());
+                    telemetry.addData("slides pos", intake.slides.getCurrentPosition());
+                    telemetry.update();
             }
-
-            outtake.moveBar((-current1.left_trigger + current1.right_trigger) * 0.7,0);
-
-            if (current1.a && !last1.a) {
-                outtake.setClaw((clawOpen) ? servoPositions.outtakeGrip.getPosition() : servoPositions.outtakeRelease.getPosition()); //Toggle using the ternary operator, see GM260c.
-                clawOpen ^= true;
-            }
-            if (current1.x && !last1.x) {
-                outtake.setArmServo((armScoring) ? servoPositions.armIntake.getPosition() : servoPositions.armOuttake.getPosition()); //Toggle using the ternary operator, see GM260c.
-                armScoring ^= true;
-            }
-
-            drive.robotCentric(-current1.left_stick_y, current1.left_stick_x, -current1.right_stick_x);
-
-            telemetry.addData("maxPower",drive.maxPower);
-            telemetry.addData("outtakeLeft power", current1.left_stick_y);
-//            telemetry.addData("wrist pos",intake.elbowLeft.getPosition());
-            telemetry.addData("scissor pos", intake.scissor.getPosition());
-            telemetry.update();
         }
     }
 }

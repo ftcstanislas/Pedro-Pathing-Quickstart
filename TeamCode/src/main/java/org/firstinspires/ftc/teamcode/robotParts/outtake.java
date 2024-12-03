@@ -36,7 +36,7 @@ public class outtake {
 
     double leftPos, rightPos, armPos, time;
 
-    final double p = 0.3, i = 0, d = 0.015;
+    final double p = 0.4, i = 0, d = 0.015;
     int ticks;
     double power;
 
