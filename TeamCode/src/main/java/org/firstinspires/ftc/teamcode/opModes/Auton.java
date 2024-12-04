@@ -15,7 +15,7 @@ import org.firstinspires.ftc.teamcode.robotParts.outtake;
 
 import java.util.List;
 
-@Autonomous(name = "Auton",group = "Auton")
+@Autonomous(name = "0+0",group = "Auton")
 public class Auton extends LinearOpMode {
     clawIntake intake = new clawIntake();
     org.firstinspires.ftc.teamcode.robotParts.outtake outtake = new outtake();

@@ -9,34 +9,33 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import org.firstinspires.ftc.teamcode.robotParts.clawIntake;
 import org.firstinspires.ftc.teamcode.robotParts.outtake;
 import org.firstinspires.ftc.teamcode.robotParts.pedroPathing.follower.*;
-import org.firstinspires.ftc.teamcode.robotParts.pedroPathing.localization.Pose;
-import org.firstinspires.ftc.teamcode.robotParts.pedroPathing.pathGeneration.BezierCurve;
 import org.firstinspires.ftc.teamcode.robotParts.pedroPathing.pathGeneration.BezierLine;
 import org.firstinspires.ftc.teamcode.robotParts.pedroPathing.pathGeneration.Path;
 import org.firstinspires.ftc.teamcode.robotParts.pedroPathing.pathGeneration.PathChain;
 import org.firstinspires.ftc.teamcode.robotParts.pedroPathing.pathGeneration.Point;
-import org.firstinspires.ftc.teamcode.robotParts.pedroPathing.util.Timer;
 import org.firstinspires.ftc.teamcode.robotParts.servoPositions;
 
 import java.util.List;
 
-@Autonomous(name = "Auton2",group = "Auton")
+@Autonomous(name = "0+1",group = "Auton")
 public class Auton2 extends LinearOpMode {
     clawIntake intake = new clawIntake();
     outtake outtake = new outtake();
     private Follower follower;
-    private Path forwards;
-    private Path backwards;
+
+    Point start = new Point(0, 0, Point.CARTESIAN);
+    Point rung = new Point(30, 4, Point.CARTESIAN);
+
+    private Path[] paths = {
+        new Path(new BezierLine(start, rung)),
+    };
 
     int state = 0;
 
     double timer;
 
     @Override
-    public void runOpMode() {
-        /*
-            Sets the hubs to using BulkReads. Any read will read all non-I2C sensors from a hub at once.
-         */
+    public void runOpMode() throws InterruptedException {
         List<LynxModule> allHubs = hardwareMap.getAll(LynxModule.class);
 
         for (LynxModule hub : allHubs) {
@@ -45,17 +44,20 @@ public class Auton2 extends LinearOpMode {
 
         follower = new Follower(hardwareMap);
 
-        forwards = new Path(new BezierLine(new Point(0,0, Point.CARTESIAN), new Point(32,14, Point.CARTESIAN)));
-        forwards.setConstantHeadingInterpolation(0);
+        for (Path path : paths) {
+            path.setConstantHeadingInterpolation(0);
+        }
 
-        follower.followPath(forwards);
+        PathChain chain = follower.pathBuilder()
+                .addPath(paths[0])
+                .setConstantHeadingInterpolation(0)
+                .build();
+
+        follower.followPath(chain, true);
 
         outtake.init(hardwareMap);
         intake.init(hardwareMap);
 
-        /*
-            This line makes the telemetry available for FTC Dashboard by ACME Robotics.
-         */
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
         waitForStart();
@@ -67,28 +69,16 @@ public class Auton2 extends LinearOpMode {
                     follower.update();
                     if (!follower.isBusy()) {
                         state++;
+                        outtake.autoSequenceState = 0;
                     }
                     break;
                 case 1:
-                    outtake.armPID(600);
-                    if (outtake.arm.getCurrentPosition() > 590) {
-                        state++;
-                    }
-                    break;
-                case 2:
-                    outtake.setClaw(servoPositions.outtakeRelease.getPosition());
-                    timer = System.currentTimeMillis();
-                    state++;
-                    break;
-                case 3:
-                    if (timer + 100 < System.currentTimeMillis()){
-                        state++;
-                    }
-                case 4:
-                    outtake.armPID(0);
+                    outtake.autoSpecimenSequence();
+                    if (outtake.autoSequenceState == 4) state++;
             }
             telemetry.addData("follower", !follower.isBusy());
-            telemetry.addData("pos", outtake.arm.getCurrentPosition() > 690);
+            telemetry.addData("case", state);
+            telemetry.addData("outtakeCase", outtake.autoSequenceState);
             telemetry.addData("pos", outtake.arm.getCurrentPosition());
             telemetry.update();
         }

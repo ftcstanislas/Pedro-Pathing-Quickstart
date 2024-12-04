@@ -22,12 +22,14 @@ public class twoPlayerDrive extends LinearOpMode {
     outtake outtake = new outtake();
     MecanumDrivetrain drive = new MecanumDrivetrain();
 
+    boolean clawOpen = false, intakeOpen = true, armManual = false;
+    int target;
     volatile Gamepad last1 = new Gamepad();
     volatile Gamepad current1 = new Gamepad();
     volatile Gamepad last2 = new Gamepad();
     volatile Gamepad current2 = new Gamepad();
 
-    boolean clawOpen = false, armScoring = false, scissorOut = false, intakeOpen = true;
+    boolean armScoring = false, scissorOut = false;
 
     int outtakeCase = 0;
 
@@ -59,55 +61,43 @@ public class twoPlayerDrive extends LinearOpMode {
                 intakeOpen ^= true;
             }
 
-            if (current2.dpad_up && !last2.dpad_up)
-                intake.setDiffy(servoPositions.clawDrop.getDifferential());
-            else if (current2.dpad_left && !last2.dpad_left)
-                intake.setDiffy(servoPositions.clawIntakeNarrow.getDifferential());
-            else if (current2.dpad_right && !last2.dpad_right)
-                intake.setDiffy(servoPositions.clawIntakeWide.getDifferential());
+            if (current2.dpad_up && !last2.dpad_up) intake.setDiffy(servoPositions.clawDrop.getDifferential());
+            else if (current2.dpad_left && !last2.dpad_left) intake.setDiffy(servoPositions.clawIntakeNarrow.getDifferential());
+            else if (current2.dpad_right && !last2.dpad_right) intake.setDiffy(servoPositions.clawIntakeWide.getDifferential());
 
-            switch (outtakeCase) {
-                case 0:
-                    if (current1.a && !last1.a) {
-                        outtake.setClaw(servoPositions.outtakeGrip.getPosition());
-                        outtakeCase++;
-                    }
-                    break;
-                case 1:
-                    if (current1.a && !last1.a) {
-                        outtakeCase++;
-                    }
-                    break;
-                case 2:
-                    outtake.moveArm(0.7);
-                    if (!current1.a && last1.a) {
-                        outtake.setClaw(servoPositions.outtakeRelease.getPosition());
-                        outtakeCase++;
-                    }
-                    break;
-                case 3:
-                    outtake.armPID(0);
-                    if (outtake.arm.getCurrentPosition() < 20) {
-                        outtake.moveArm(0);
-                        outtakeCase = 0;
-                    }
 
-                    if (current1.a && !last1.a) {
-                        outtake.setClaw((clawOpen) ? servoPositions.outtakeGrip.getPosition() : servoPositions.outtakeRelease.getPosition()); //Toggle using the ternary operator, see GM260c.
-                        clawOpen ^= true;
-                    }
+            if (current1.left_trigger != 0 || current1.right_trigger != 0) armManual = true;
 
-                    intake.setSlidesWithLimit(0.4 * current2.right_stick_y);
+            if (current1.b) {
+                target = 650;
+                armManual = false;
+            }
+            else if (current1.x) {
+                target = 0;
+                armManual = false;
+            }
 
-                    outtake.moveHook(-gamepad2.left_trigger + gamepad2.right_trigger);
+            if (armManual) {
+                outtake.moveArm(-current1.left_trigger + current1.right_trigger);
+            } else {
+                outtake.armPID(target);
+            }
+
+            if (current1.a && !last1.a) {
+                outtake.setClaw((clawOpen) ? servoPositions.outtakeGrip.getPosition() : servoPositions.outtakeRelease.getPosition()); //Toggle using the ternary operator, see GM260c.
+                clawOpen ^= true;
+            }
+
+            intake.setSlidesWithLimit(0.4*current2.right_stick_y);
+
+            outtake.moveHook(-gamepad2.left_trigger + gamepad2.right_trigger);
 
 //            drive.outdatedRobotCentric(drive.toPolar(current.left_stick_x,-current.left_stick_y), -current.right_stick_x);
-                    drive.robotCentric(-current1.left_stick_y, current1.left_stick_x, -current1.right_stick_x);
+            drive.robotCentric(-current1.left_stick_y, current1.left_stick_x, -current1.right_stick_x);
 
-                    telemetry.addData("arm pos", outtake.arm.getCurrentPosition());
-                    telemetry.addData("slides pos", intake.slides.getCurrentPosition());
-                    telemetry.update();
-            }
+            telemetry.addData("arm pos", outtake.arm.getCurrentPosition());
+            telemetry.addData("slides pos", intake.slides.getCurrentPosition());
+            telemetry.update();
         }
     }
 }

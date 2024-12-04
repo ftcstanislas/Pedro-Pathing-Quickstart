@@ -38,7 +38,9 @@ public class outtake {
 
     final double p = 0.4, i = 0, d = 0.015;
     int ticks;
-    double power;
+    double power, timer;
+
+    public int autoSequenceState = 0;
 
     PIDController pid = new PIDController(p,i,d);
 
@@ -112,6 +114,30 @@ public class outtake {
     public void setArmServo(double position) {armServo.setPosition(position);}
 
     public void setClaw(double position) {claw.setPosition(position);}
+
+    public void autoSpecimenSequence() throws InterruptedException {
+        switch (autoSequenceState) {
+            case 0:
+                moveArm(0.7);
+                if (arm.getCurrentPosition() > 750) {
+                    autoSequenceState++;
+                }
+                break;
+            case 1:
+                setClaw(servoPositions.outtakeRelease.getPosition());
+                timer = System.currentTimeMillis();
+                autoSequenceState++;
+                break;
+            case 2:
+                if (timer + 200 < System.currentTimeMillis()) {
+                    armPID(0);
+                    if (arm.getCurrentPosition() < 10) {
+                        moveArm(0);
+                        autoSequenceState++;
+                    }
+                }
+        }
+    }
 
     public void specimenSequence(boolean toggle, double power, boolean reset) {
         switch (specimenState) {

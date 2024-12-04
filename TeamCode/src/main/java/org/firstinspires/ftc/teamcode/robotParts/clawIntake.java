@@ -45,6 +45,7 @@ public class clawIntake {
         setDiffy(servoPositions.clawIntakeInit.getDifferential());
 
         slides = map.get(DcMotorEx.class, "slides");
+        slides.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         slides.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         slides.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 

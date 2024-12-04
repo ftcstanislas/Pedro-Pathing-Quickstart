@@ -5,7 +5,15 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.teamcode.robotParts.pedroPathing.follower.Follower;
+import org.firstinspires.ftc.teamcode.robotParts.pedroPathing.pathGeneration.BezierCurve;
+import org.firstinspires.ftc.teamcode.robotParts.pedroPathing.pathGeneration.BezierLine;
+import org.firstinspires.ftc.teamcode.robotParts.pedroPathing.pathGeneration.Path;
+import org.firstinspires.ftc.teamcode.robotParts.pedroPathing.pathGeneration.PathChain;
+import org.firstinspires.ftc.teamcode.robotParts.pedroPathing.pathGeneration.Point;
+
 public class MecanumDrivetrain extends StandardFunctions {
+    HardwareMap map;
     public DcMotorEx FrontL, FrontR,BackL,BackR;
 
     int j;
@@ -25,7 +33,6 @@ public class MecanumDrivetrain extends StandardFunctions {
     public double[]
             motorPowers = {0,0,0,0},
             LVector,RVector,sumVector = {0,0};
-
     public void init(HardwareMap map) {
         FrontL = map.get(DcMotorEx.class, "left_front");
         FrontR = map.get(DcMotorEx.class, "right_front");

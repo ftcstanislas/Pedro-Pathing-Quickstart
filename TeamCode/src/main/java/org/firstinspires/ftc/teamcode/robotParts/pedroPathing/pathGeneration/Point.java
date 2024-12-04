@@ -25,6 +25,8 @@ public class Point {
     // these are used for ease of changing/setting identification
     public static final int POLAR = 0;
     public static final int CARTESIAN = 1;
+    public static final int MILLIMETER = 2;
+    public static final int RTF = 3;
 
 
     /**
