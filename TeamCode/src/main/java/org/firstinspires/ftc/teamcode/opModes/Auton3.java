@@ -109,7 +109,7 @@ public class Auton3 extends LinearOpMode {
                     break;
                 case 1:
                     outtake.autoSpecimenSequence();
-                    if (outtake.autoSequenceState == 3) {
+                    if (outtake.autoSequenceState == 4) {
                         follower.followPath(getToSample, true);
                         follower.setMaxPower(0.7);
                         state++;
@@ -171,7 +171,7 @@ public class Auton3 extends LinearOpMode {
                     break;
                 case 9:
                     outtake.autoSpecimenSequence();
-                    if (outtake.autoSequenceState == 3) {
+                    if (outtake.autoSequenceState == 4) {
                         state++;
                     }
                     break;

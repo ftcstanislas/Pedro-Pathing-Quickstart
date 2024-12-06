@@ -40,7 +40,7 @@ public class outtake {
     int ticks;
     double power, timer;
 
-    public int autoSequenceState = 0;
+    public int autoSequenceState = 4;
 
     PIDController pid = new PIDController(p,i,d);
 
@@ -118,7 +118,7 @@ public class outtake {
     public void autoSpecimenSequence() throws InterruptedException {
         switch (autoSequenceState) {
             case 0:
-                moveArm(0.7);
+                moveArm(0.8);
                 if (arm.getCurrentPosition() > 750) {
                     autoSequenceState++;
                 }
@@ -130,6 +130,9 @@ public class outtake {
                 break;
             case 2:
                 if (timer + 200 < System.currentTimeMillis()) {
+                    autoSequenceState++;
+                }
+            case 3:
                     armPID(0);
                     if (arm.getCurrentPosition() < 10) {
                         moveArm(0);
@@ -137,7 +140,6 @@ public class outtake {
                     }
                 }
         }
-    }
 
     public void specimenSequence(boolean toggle, double power, boolean reset) {
         switch (specimenState) {
