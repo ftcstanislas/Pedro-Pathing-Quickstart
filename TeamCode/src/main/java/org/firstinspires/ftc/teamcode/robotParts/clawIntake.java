@@ -24,17 +24,17 @@ public class clawIntake {
 
     public intakeSequence state = intakeSequence.IDLING;
 
-    public Servo differentialLeft, differentialRight, scissor, intakeClaw;//TODO unpublic
+    Servo differentialLeft, differentialRight, scissor, intakeClaw, keepSlides;
 
     public DcMotorEx slides;
 
-    final double p = -0.00225, i = -0.1, d = -0.1;
+    final double p = -0.003, i = -0.1, d = -0.1;
 
     PIDController pid = new PIDController(p,i,d);
 
-    final int slideMax = 0, slideMin = -480;
+    final int slideMax = 0, slideMin = -510;
 
-    final double maxExtend = 41.0, maxWristAngle = 390.0, minWristAngle = 60.0;
+    final double maxExtend = 42.5, maxWristAngle = 390.0, minWristAngle = 60.0;
 
     int slidePos;
 
@@ -51,11 +51,16 @@ public class clawIntake {
 
         intakeClaw = map.get(Servo.class,"intake");
 
+        keepSlides = map.get(Servo.class, "keepSlides");
+        keepSlides.setPosition(servoPositions.keepSlides.getPosition());
+
         pid.setPID(p,i,d);
     }
 
     @Deprecated
     public void setWrist(double position){differentialLeft.setPosition(position);}
+
+    public void setKeepSlides(double position){keepSlides.setPosition(position);}
 
     public void setDiffy(double[] positions) {
         differentialLeft.setPosition(positions[0]);
@@ -117,82 +122,6 @@ public class clawIntake {
                 break;
             case GRAB:
                 if (toggle) {
-                    state = intakeSequence.RAISE;
-                    setClaw(servoPositions.intakeRelease.getPosition());
-                    setDiffy(servoPositions.rollerTransfer.getDifferential());
-                    time = System.currentTimeMillis();
-                }
-                break;
-            case RAISE:
-                if (time + 300 < System.currentTimeMillis()) {
-                    state = intakeSequence.RETRACT;
-                    setScissor(servoPositions.scissorRetract.getPosition());
-                    time = System.currentTimeMillis();
-                }
-                break;
-            case RETRACT:
-                if (toggle) {
-                    state = intakeSequence.TRANSFER;
-                    setScissor(0.8);
-                    setDiffy(servoPositions.rollerSide.getDifferential());
-                    time = System.currentTimeMillis();
-                }
-                break;
-            case TRANSFER:
-                if (time + 500 < System.currentTimeMillis()) {
-                    setClaw(servoPositions.intakeRelease.getPosition());
-                    state = intakeSequence.AWAY;
-                }
-                break;
-            case AWAY:
-                if (toggle) {
-                    state = intakeSequence.IDLING;
-                    setDiffy(servoPositions.rollerTransfer.getDifferential());
-                    setScissor(servoPositions.scissorRetract.getPosition());
-                    //Camera 10 frames/second
-                }
-                break;
-        }
-        if (reset) {
-            state = intakeSequence.IDLING;
-            setClaw(servoPositions.intakeRelease.getPosition());
-            setDiffy(servoPositions.rollerTransfer.getDifferential());
-            setScissor(servoPositions.scissorRetract.getPosition());
-            //Camera 10 frames/second
-        }
-    }
-    public void sequence(boolean toggle, boolean reset) {
-        switch (state) {
-            case IDLING:
-                if (toggle) {
-                    state = intakeSequence.GET_READY;
-                    //wrist should be in transfer
-                    //scissor should be retracted
-                    //TODO: put outtake out of the way
-                    //TODO: Camera full frames/second
-                }
-                break;
-            case GET_READY:
-                //TODO: find best sample
-                state = intakeSequence.ALIGN;
-                setScissor(servoPositions.scissorExtend.getPosition());
-                //TODO: extend scissor with determined amount
-                time = System.currentTimeMillis();
-                break;
-            case ALIGN:
-                //TODO: drive and rotate
-                if (toggle && time + 500 < System.currentTimeMillis()) {
-                    state = intakeSequence.DROP;
-                    setDiffy(servoPositions.rollerFront.getDifferential());
-                    time = System.currentTimeMillis();
-                }
-                break;
-            case DROP:
-                state = intakeSequence.GRAB;
-                setClaw(servoPositions.intakeGrip.getPosition());
-                break;
-            case GRAB:
-                if (toggle) {//TODO: touch sensor
                     state = intakeSequence.RAISE;
                     setClaw(servoPositions.intakeRelease.getPosition());
                     setDiffy(servoPositions.rollerTransfer.getDifferential());

@@ -6,6 +6,8 @@ public enum servoPositions {
     scissorExtend(0.8),
     scissorRetract(1.0),
     wristCentered(0.5),
+    keepSlides(0.5),
+    releaseSlides(0),
 
     bucketDrop(1.0),
     bucketReceive(0.29),
@@ -22,8 +24,8 @@ public enum servoPositions {
 
     clawDrop(new double[]{1.0, 0.5}),
     clawIntakeWide(new double[]{0.2,0.2}),
-    clawIntakeNarrow(new double[]{0.5,0.5}),
-    clawIntakeInit(new double[]{0.42, 0.59});//0.4, 0.6
+    clawIntakeNarrow(new double[]{0.5,0.8}),
+    clawIntakeInit(new double[]{0.1, 0.3});//0.4, 0.6
 
     private double position;
     public double getPosition(){return this.position;}

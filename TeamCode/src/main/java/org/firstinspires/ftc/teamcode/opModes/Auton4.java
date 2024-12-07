@@ -25,7 +25,7 @@ public class Auton4 extends LinearOpMode {
     MecanumDrivetrain drive = new MecanumDrivetrain();
 
     int state = 0;
-    double timer;
+    double timer, endTimer;
     private Follower follower;
 
     Point start = new Point(0, 0, Point.CARTESIAN);
@@ -115,15 +115,16 @@ public class Auton4 extends LinearOpMode {
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
         waitForStart();
+        endTimer = System.currentTimeMillis();
         if (isStopRequested()) return;
         while (opModeIsActive()) {
             switch (state) {
                 case 0:
                     follower.update();
                     intake.setDiffy(servoPositions.clawDrop.getDifferential());
-                    if (!follower.isBusy()) {
-                        state++;
+                    if (!follower.isBusy() || endTimer + 2000 < System.currentTimeMillis()) {
                         outtake.autoSequenceState = 0;
+                        state++;
                     }
                     break;
                 case 1:
@@ -177,7 +178,7 @@ public class Auton4 extends LinearOpMode {
                 case 7:
                     if (timer + 200 < System.currentTimeMillis()) {
                         follower.followPath(scoreSecondSpecimen, true);
-                        follower.setMaxPower(0.75);
+                        follower.setMaxPower(0.8);
                         state++;
                     }
                     break;

@@ -6,6 +6,7 @@ import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
+import org.firstinspires.ftc.teamcode.robotParts.MecanumDrivetrain;
 import org.firstinspires.ftc.teamcode.robotParts.clawIntake;
 import org.firstinspires.ftc.teamcode.robotParts.outtake;
 import org.firstinspires.ftc.teamcode.robotParts.pedroPathing.follower.*;
@@ -24,7 +25,8 @@ public class Auton2 extends LinearOpMode {
     private Follower follower;
 
     Point start = new Point(0, 0, Point.CARTESIAN);
-    Point rung = new Point(30, 4, Point.CARTESIAN);
+    Point rung = new Point(31, 6, Point.CARTESIAN);
+    Point collectSpecimen4 = new Point(-5,-33, Point.CARTESIAN);
 
     private Path[] paths = {
         new Path(new BezierLine(start, rung)),
@@ -32,7 +34,7 @@ public class Auton2 extends LinearOpMode {
 
     int state = 0;
 
-    double timer;
+    double timer, endTimer;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -53,6 +55,9 @@ public class Auton2 extends LinearOpMode {
                 .setConstantHeadingInterpolation(0)
                 .build();
 
+        Path park = new Path(new BezierLine(rung, collectSpecimen4));
+        park.setConstantHeadingInterpolation(0);
+
         follower.followPath(chain, true);
 
         outtake.init(hardwareMap);
@@ -61,20 +66,36 @@ public class Auton2 extends LinearOpMode {
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
         waitForStart();
+        endTimer = System.currentTimeMillis();
         if (isStopRequested()) return;
         while (opModeIsActive()) {
             switch (state) {
                 case 0:
-                    intake.setDiffy(servoPositions.clawDrop.getDifferential());
                     follower.update();
-                    if (!follower.isBusy()) {
-                        state++;
+                    intake.setDiffy(servoPositions.clawDrop.getDifferential());
+                    if (!follower.isBusy() || endTimer + 2000 < System.currentTimeMillis()) {
                         outtake.autoSequenceState = 0;
+                        state++;
                     }
                     break;
                 case 1:
                     outtake.autoSpecimenSequence();
                     if (outtake.autoSequenceState == 4) state++;
+                case 2:
+                    if (outtake.autoSequenceState == 3) {
+                        follower.followPath(park);
+                        follower.setMaxPower(1.0);
+                        endTimer = System.currentTimeMillis();
+                        state++;
+                    }
+                    break;
+                case 3:
+                    follower.update();
+                    if (!follower.isBusy()) state++;
+                    if (endTimer + 2000 < System.currentTimeMillis()) {
+                        follower.breakFollowing();
+                        state++;
+                    }
             }
             telemetry.addData("follower", !follower.isBusy());
             telemetry.addData("case", state);

@@ -36,15 +36,15 @@ public class Auton5 extends LinearOpMode {
     Point spikeLeftBack = new Point(55, -20, Point.CARTESIAN);
     Point spike1Back = new Point(48, -40, Point.CARTESIAN);
     Point observationZone1 = new Point(8, -37, Point.CARTESIAN);
-    Point spike2Back = new Point(45, -50, Point.CARTESIAN);
+    Point spike2Back = new Point(51, -52, Point.CARTESIAN);
     Point observationZone2 = new Point(5, -50, Point.CARTESIAN);
     Point controlSpecimen2 = new Point(10, -33, Point.CARTESIAN);
-    Point collectSpecimen2 = new Point(-3,-33, Point.CARTESIAN);
-    Point rung2 = new Point(29.65, 5.5, Point.CARTESIAN);
-    Point collectSpecimen3 = new Point(-5,-33, Point.CARTESIAN);
-    Point rung3 = new Point(30, 6, Point.CARTESIAN);
-    Point collectSpecimen4 = new Point(-5,-33, Point.CARTESIAN);
-    Point rung4 = new Point(30.3, 6, Point.CARTESIAN);
+    Point collectSpecimen2 = new Point(-3,-36, Point.CARTESIAN);
+    Point rung2 = new Point(29.65, 7.5, Point.CARTESIAN);
+    Point collectSpecimen3 = new Point(-5,-36, Point.CARTESIAN);
+    Point rung3 = new Point(30, 8.25, Point.CARTESIAN);
+    Point collectSpecimen4 = new Point(-6,-36, Point.CARTESIAN);
+    Point rung4 = new Point(30.3, 9.5, Point.CARTESIAN);
 //    Point spike3Back = new Point(45, -63, Point.CARTESIAN);
 //    Point observationZone3 = new Point(8, -56, Point.CARTESIAN);
 
@@ -113,10 +113,11 @@ public class Auton5 extends LinearOpMode {
 //                .setConstantHeadingInterpolation(0)
 //                .build();
 
-        Path park = new Path(new BezierLine(rung4, collectSpecimen4));
+        Path park = new Path(new BezierLine(rung4, new Point(0,-40, Point.CARTESIAN)));
+        park.setConstantHeadingInterpolation(0);
 
         follower.followPath(firstSpecimen, true);
-        follower.setMaxPower(0.8);
+        follower.setMaxPower(0.9);
 
         outtake.init(hardwareMap);
         intake.init(hardwareMap);
@@ -130,6 +131,7 @@ public class Auton5 extends LinearOpMode {
         while (opModeIsActive()) {
             switch (state) {
                 case 0:
+                    follower.update();
                     intake.setDiffy(servoPositions.clawDrop.getDifferential());
                     if (!follower.isBusy() || endTimer + 2000 < System.currentTimeMillis()) {
                         outtake.autoSequenceState = 0;
@@ -144,6 +146,7 @@ public class Auton5 extends LinearOpMode {
                     }
                     break;
                 case 2:
+                    follower.update();
                     if (!follower.isBusy()) {
                         follower.followPath(collectSamples, true);
                         follower.setMaxPower(0.6);
@@ -151,86 +154,105 @@ public class Auton5 extends LinearOpMode {
                     }
                     break;
                 case 3:
+                    follower.update();
                     if (!follower.isBusy()) {
                         follower.followPath(getSecondSpecimen, true);
                         follower.setMaxPower(0.6);
                         endTimer = System.currentTimeMillis();
                         state++;
                     }
+                    break;
                 case 4:
+                    follower.update();
                     if (!follower.isBusy()) {
                         startTimer = System.currentTimeMillis();
                         outtake.setClaw(servoPositions.outtakeGrip.getPosition());
                         state++;
                     }
+                    if (endTimer + 3000 < System.currentTimeMillis()) follower.breakFollowing();
+                    break;
                 case 5:
                     if (startTimer + 200 < System.currentTimeMillis()) {
                         follower.followPath(scoreSecondSpecimen, true);
-                        follower.setMaxPower(0.8);
+                        follower.setMaxPower(0.9);
+                        endTimer = System.currentTimeMillis();
                         state++;
                     }
                     break;
-                    //hier gaat hij derde specimen pakken
                 case 6:
+                    follower.update();
                     if (!follower.isBusy()) {
                         outtake.autoSequenceState = 0;
                         state++;
                     }
+                    if (endTimer + 2000 < System.currentTimeMillis()) follower.breakFollowing();
                     break;
                 case 7:
                     if (outtake.autoSequenceState == 3) {
                         follower.followPath(getThirdSpecimen, true);
-                        follower.setMaxPower(0.8);
+                        endTimer = System.currentTimeMillis();
+                        follower.setMaxPower(0.7);
                         state++;
                     }
                     break;
                 // single specimen sequence
                 case 8:
+                    follower.update();
                     if (!follower.isBusy()) {
                         startTimer = System.currentTimeMillis();
                         outtake.setClaw(servoPositions.outtakeGrip.getPosition());
                         state++;
                     }
+                    if (endTimer + 2000 < System.currentTimeMillis()) follower.breakFollowing();
                     break;
                 case 9:
                     if (startTimer + 200 < System.currentTimeMillis()) {
                         follower.followPath(scoreThirdSpecimen, true);
-                        follower.setMaxPower(0.8);
+                        follower.setMaxPower(0.9);
+                        endTimer = System.currentTimeMillis();
                         state++;
                     }
                     break;
                 case 10:
+                    follower.update();
                     if (!follower.isBusy()) {
                         state++;
                         outtake.autoSequenceState = 0;
                     }
+                    if (endTimer + 2000 < System.currentTimeMillis()) follower.breakFollowing();
                     break;
                 case 11:
                     if (outtake.autoSequenceState == 3) {
                         follower.followPath(getFourthSpecimen, true);
-                        follower.setMaxPower(0.8);
+                        follower.setMaxPower(0.7);
+                        endTimer = System.currentTimeMillis();
                         state++;
                     }
                     break;
                 case 12:
+                    follower.update();
                     if (!follower.isBusy()) {
                     startTimer = System.currentTimeMillis();
                     outtake.setClaw(servoPositions.outtakeGrip.getPosition());
                     state++;
-                }
-                break;
+                    }
+                    if (endTimer + 2000 < System.currentTimeMillis()) follower.breakFollowing();
+                    break;
                 case 13:
                     if (startTimer + 200 < System.currentTimeMillis()) {
                         follower.followPath(scoreFourthSpecimen, true);
-                        follower.setMaxPower(0.8);
+                        follower.setMaxPower(0.9);
+                        endTimer = System.currentTimeMillis();
                         state++;
                     }
                     break;
                 case 14:
+                    follower.update();
                     if (!follower.isBusy()) {
                         state++;
                         outtake.autoSequenceState = 0;
                     }
+                    if (endTimer + 2000 < System.currentTimeMillis()) follower.breakFollowing();
                     break;
                 case 15:
                     if (outtake.autoSequenceState == 3) {
@@ -238,55 +260,13 @@ public class Auton5 extends LinearOpMode {
                         follower.setMaxPower(1.0);
                         state++;
                     }
-                    break;//                case 16:
-//                    follower.update();
-//                    if (timer + 1000 < System.currentTimeMillis()) {
-//                        follower.followPath(getFourthSpecimen, true);
-//                        follower.setMaxPower(0.75);
-//                        state++;
-//                    }
-//                case 17:
-//                    follower.update();
-//                    if (!follower.isBusy()) {
-//                        timer = System.currentTimeMillis();
-//                        follower.followPath(getThirdSpecimen, true);
-//                        follower.setMaxPower(0.5);
-//                        state++;
-//                    }
-//                    break;
-//
-//                case 18:
-//                    follower.update();
-//                    if (!follower.isBusy()) {
-//                        outtake.setClaw(servoPositions.outtakeGrip.getPosition());
-//                        timer = System.currentTimeMillis();
-//                        state++;
-//                    }
-//                    break;
-//                case 19:
-//                    if (timer + 200 < System.currentTimeMillis()) {
-//                        follower.followPath(scoreThirdSpecimen, true);
-//                        follower.setMaxPower(0.75);
-//                        state++;
-//                    }
-//                    break;
-//                case 20:
-//                    follower.update();
-//                    if (!follower.isBusy()) {
-//                        state++;
-//                        outtake.autoSequenceState = 0;
-//                    }
-//                    break;
-//                case 21:
-//                    outtake.autoSpecimenSequence();
-//                    if (outtake.autoSequenceState == 4) {
-//                        state++;
-//                    }
-//                    break;
+                    break;
+                case 16:
+                    follower.update();
+                    if (!follower.isBusy()) state++;
             }
             outtake.autoSpecimenSequence();
             intake.slidesPID(0);
-            follower.update();
 
             telemetry.addData("follower", !follower.isBusy());
             telemetry.addData("case", state);

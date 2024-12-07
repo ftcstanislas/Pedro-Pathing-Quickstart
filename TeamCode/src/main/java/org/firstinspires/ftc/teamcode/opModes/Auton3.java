@@ -26,7 +26,7 @@ public class Auton3 extends LinearOpMode {
     MecanumDrivetrain drive = new MecanumDrivetrain();
 
     int state = 0;
-    double timer;
+    double timer, endTimer;
     private Follower follower;
 
     Point start = new Point(0, 0, Point.CARTESIAN);
@@ -96,15 +96,16 @@ public class Auton3 extends LinearOpMode {
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
         waitForStart();
+        endTimer = System.currentTimeMillis();
         if (isStopRequested()) return;
         while (opModeIsActive()) {
             switch (state) {
                 case 0:
                     follower.update();
                     intake.setDiffy(servoPositions.clawDrop.getDifferential());
-                    if (!follower.isBusy()) {
-                        state++;
+                    if (!follower.isBusy() || endTimer + 2000 < System.currentTimeMillis()) {
                         outtake.autoSequenceState = 0;
+                        state++;
                     }
                     break;
                 case 1:

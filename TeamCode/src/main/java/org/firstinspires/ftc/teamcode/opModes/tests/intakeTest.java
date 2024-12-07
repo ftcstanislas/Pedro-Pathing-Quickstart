@@ -28,7 +28,6 @@ public class intakeTest extends LinearOpMode {
         if (isStopRequested()) return;
 
         while (opModeIsActive()) {
-//            left = -gamepad1.left_stick_y;
 //            right = -gamepad1.right_stick_y;
 //            if (gamepad1.dpad_down) {
 //                intake.setDiffy(servoPositions.rollerSide.getDifferential());
@@ -41,16 +40,18 @@ public class intakeTest extends LinearOpMode {
 //            }
 //            intake.differentialLeft.setPosition(left);
 //            intake.differentialRight.setPosition(right);
-            intake.setDiffyAngle(left);
-            delta = intake.slideToCentimeter(cm);
+//            intake.setDiffyAngle(left);
+//            delta = intake.slideToCentimeter(cm);
+//
+//            if (gamepad1.a) {
+//                intake.setClaw(servoPositions.intakeRelease.getPosition());
+//            } else if (gamepad1.b) {
+//                intake.setClaw(servoPositions.intakeGrip.getPosition());
+//            }
+            if (gamepad1.a) intake.setKeepSlides(0);
+            else if (gamepad1.b) intake.setKeepSlides(0.5);
 
-            if (gamepad1.a) {
-                intake.setClaw(servoPositions.intakeRelease.getPosition());
-            } else if (gamepad1.b) {
-                intake.setClaw(servoPositions.intakeGrip.getPosition());
-            }
-
-            telemetry.addData("wristLeft", left);
+            telemetry.addData("Left", left);
             telemetry.addData("wristRight",right);
             telemetry.addData("target", cm);
             telemetry.addData("pos", pos);

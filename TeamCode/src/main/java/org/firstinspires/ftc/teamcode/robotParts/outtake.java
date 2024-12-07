@@ -118,8 +118,8 @@ public class outtake {
     public void autoSpecimenSequence() throws InterruptedException {
         switch (autoSequenceState) {
             case 0:
-                moveArm(0.8);
-                if (arm.getCurrentPosition() > 750) {
+                moveArm(0.7);
+                if (arm.getCurrentPosition() > 900) {
                     autoSequenceState++;
                 }
                 break;
