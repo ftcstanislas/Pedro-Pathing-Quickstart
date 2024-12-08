@@ -119,7 +119,7 @@ public class outtake {
         switch (autoSequenceState) {
             case 0:
                 moveArm(0.7);
-                if (arm.getCurrentPosition() > 900) {
+                if (arm.getCurrentPosition() > 950) {
                     autoSequenceState++;
                 }
                 break;
@@ -129,12 +129,13 @@ public class outtake {
                 autoSequenceState++;
                 break;
             case 2:
-                if (timer + 200 < System.currentTimeMillis()) {
+                if (timer + 250 < System.currentTimeMillis()) {
                     autoSequenceState++;
                 }
             case 3:
                     armPID(0);
-                    if (arm.getCurrentPosition() < 10) {
+                    if (a nmkl\
+                rm.getCurrentPosition() < 10) {
                         moveArm(0);
                         autoSequenceState++;
                     }
@@ -143,7 +144,7 @@ public class outtake {
 
     public void specimenSequence(boolean toggle, double power, boolean reset) {
         switch (specimenState) {
-            case IDLING:
+            cas IDLING:
                 if (toggle) {
                     specimenState = specimenSequence.UP;
                     setClaw(servoPositions.outtakeGrip.getPosition());

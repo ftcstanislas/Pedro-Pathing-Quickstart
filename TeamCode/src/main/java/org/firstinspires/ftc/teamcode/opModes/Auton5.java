@@ -30,21 +30,21 @@ public class Auton5 extends LinearOpMode {
     private Follower follower;
 
     Point start = new Point(0, 0, Point.CARTESIAN);
-    Point rung = new Point(30.3, 6, Point.CARTESIAN);
+    Point rung = new Point(31, 6, Point.CARTESIAN);
     Point rungLeave = new Point(15, -10, Point.CARTESIAN);
     Point rungLeave2 = new Point(15, -60, Point.CARTESIAN);
     Point spikeLeftBack = new Point(55, -20, Point.CARTESIAN);
-    Point spike1Back = new Point(48, -40, Point.CARTESIAN);
+    Point spike1Back = new Point(48, -37, Point.CARTESIAN);
     Point observationZone1 = new Point(8, -37, Point.CARTESIAN);
-    Point spike2Back = new Point(51, -52, Point.CARTESIAN);
+    Point spike2Back = new Point(51, -44, Point.CARTESIAN);
     Point observationZone2 = new Point(5, -50, Point.CARTESIAN);
     Point controlSpecimen2 = new Point(10, -33, Point.CARTESIAN);
     Point collectSpecimen2 = new Point(-3,-36, Point.CARTESIAN);
-    Point rung2 = new Point(29.65, 7.5, Point.CARTESIAN);
-    Point collectSpecimen3 = new Point(-5,-36, Point.CARTESIAN);
-    Point rung3 = new Point(30, 8.25, Point.CARTESIAN);
-    Point collectSpecimen4 = new Point(-6,-36, Point.CARTESIAN);
-    Point rung4 = new Point(30.3, 9.5, Point.CARTESIAN);
+    Point rung2 = new Point(31, 7.5, Point.CARTESIAN);
+    Point collectSpecimen3 = new Point(-20,-50, Point.CARTESIAN);
+    Point rung3 = new Point(31, 8.25, Point.CARTESIAN);
+    Point collectSpecimen4 = new Point(-20,-50, Point.CARTESIAN);
+    Point rung4 = new Point(31, 9.5, Point.CARTESIAN);
 //    Point spike3Back = new Point(45, -63, Point.CARTESIAN);
 //    Point observationZone3 = new Point(8, -56, Point.CARTESIAN);
 
@@ -169,7 +169,7 @@ public class Auton5 extends LinearOpMode {
                         outtake.setClaw(servoPositions.outtakeGrip.getPosition());
                         state++;
                     }
-                    if (endTimer + 3000 < System.currentTimeMillis()) follower.breakFollowing();
+                    if (endTimer + 2000 < System.currentTimeMillis()) follower.breakFollowing();
                     break;
                 case 5:
                     if (startTimer + 200 < System.currentTimeMillis()) {
