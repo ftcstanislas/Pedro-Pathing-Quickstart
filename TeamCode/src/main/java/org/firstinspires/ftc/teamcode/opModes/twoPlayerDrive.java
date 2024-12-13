@@ -98,7 +98,7 @@ public class twoPlayerDrive extends LinearOpMode {
             outtake.moveHook(-gamepad2.left_trigger + gamepad2.right_trigger);
 
 //            drive.outdatedRobotCentric(drive.toPolar(current.left_stick_x,-current.left_stick_y), -current.right_stick_x);
-            drive.robotCentric(-current1.left_stick_y, current1.left_stick_x, -current1.right_stick_x);
+            drive.robotCentric(-current1.left_stick_y, current1.left_stick_x, current1.right_stick_x);
 
             telemetry.addData("arm pos", outtake.arm.getCurrentPosition());
             telemetry.addData("slides pos", intake.slides.getCurrentPosition());

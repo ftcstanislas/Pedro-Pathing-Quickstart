@@ -28,13 +28,13 @@ public class clawIntake {
 
     public DcMotorEx slides;
 
-    final double p = -0.003, i = -0.1, d = -0.1;
+    final double p = -0.006, i = 0.0, d = -0.15;
 
     PIDController pid = new PIDController(p,i,d);
 
     final int slideMax = 0, slideMin = -510;
 
-    final double maxExtend = 42.5, maxWristAngle = 390.0, minWristAngle = 60.0;
+    final double maxExtend = 46.0, maxWristAngle = 390.0, minWristAngle = 60.0;
 
     int slidePos;
 

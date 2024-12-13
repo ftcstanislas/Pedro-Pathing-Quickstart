@@ -39,8 +39,8 @@ public class MecanumDrivetrain extends StandardFunctions {
         BackL = map.get(DcMotorEx.class, "left_back");
         BackR = map.get(DcMotorEx.class, "right_back");
 
-        FrontR.setDirection(DcMotorSimple.Direction.REVERSE);
-        BackR.setDirection(DcMotorSimple.Direction.REVERSE);
+        FrontL.setDirection(DcMotorSimple.Direction.REVERSE);
+        BackL.setDirection(DcMotorSimple.Direction.REVERSE);
 
         FrontL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         BackL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);

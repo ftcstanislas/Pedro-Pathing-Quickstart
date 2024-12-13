@@ -134,8 +134,7 @@ public class outtake {
                 }
             case 3:
                     armPID(0);
-                    if (a nmkl\
-                rm.getCurrentPosition() < 10) {
+                    if (arm.getCurrentPosition() < 10) {
                         moveArm(0);
                         autoSequenceState++;
                     }
@@ -144,7 +143,7 @@ public class outtake {
 
     public void specimenSequence(boolean toggle, double power, boolean reset) {
         switch (specimenState) {
-            cas IDLING:
+            case IDLING:
                 if (toggle) {
                     specimenState = specimenSequence.UP;
                     setClaw(servoPositions.outtakeGrip.getPosition());

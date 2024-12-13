@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode.opModes.tests;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.hardware.lynx.LynxModule;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Gamepad;
@@ -15,7 +14,6 @@ import org.firstinspires.ftc.teamcode.robotParts.pedroPathing.follower.Follower;
 import org.firstinspires.ftc.teamcode.robotParts.pedroPathing.pathGeneration.BezierLine;
 import org.firstinspires.ftc.teamcode.robotParts.pedroPathing.pathGeneration.Path;
 import org.firstinspires.ftc.teamcode.robotParts.pedroPathing.pathGeneration.Point;
-import org.firstinspires.ftc.teamcode.robotParts.rollerIntake;
 import org.firstinspires.ftc.teamcode.robotParts.servoPositions;
 import org.firstinspires.ftc.teamcode.robotParts.vision.SampleDetectionPipeline;
 import org.openftc.easyopencv.OpenCvCamera;
@@ -45,6 +43,8 @@ public class sequenceTest extends LinearOpMode {
     double slideTarget, timer, slideDelta;
 
     int intakeCase = 0;
+
+    boolean starting;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -85,9 +85,23 @@ public class sequenceTest extends LinearOpMode {
             switch (intakeCase) {
                 case 0:
                     if (current.x && !last.x) {
+                        sampleDetectionPipeline.desiredColor = SampleDetectionPipeline.RED;
+                        telemetry.addLine("red");
+                        starting = true;
+                    } else if (current.a && !last.a) {
+                        sampleDetectionPipeline.desiredColor = SampleDetectionPipeline.BLUE;
+                        telemetry.addLine("blue");
+                        starting = true;
+                    } else if (current.b && !last.b) {
+                        sampleDetectionPipeline.desiredColor = SampleDetectionPipeline.YELLOW;
+                        telemetry.addLine("yellow");
+                        starting = true;
+                    }
+                    if (starting) {
+                        starting = false;
                         bestSampleInformation = null;
                         currentDetections = sampleDetectionPipeline.getDetectedStones();
-                        bestSampleInformation = sampleDetectionPipeline.getBestSampleInformation(currentDetections, SampleDetectionPipeline.BLUE);
+                        bestSampleInformation = sampleDetectionPipeline.getBestSampleInformation(currentDetections);
                         if (bestSampleInformation != null) {
                             if (Math.abs(bestSampleInformation[0]) > 1.5) {
                                 sampleY = new Path(new BezierLine(new Point(0, 0, Point.CARTESIAN), new Point(0, -bestSampleInformation[0] / 2.54, Point.CARTESIAN)));
@@ -97,6 +111,7 @@ public class sequenceTest extends LinearOpMode {
 
                             intake.setClaw(servoPositions.intakeRelease.getPosition());
                             intake.setDiffy(servoPositions.clawDrop.getDifferential());
+                            intake.setKeepSlides(servoPositions.releaseSlides.getPosition());
 
                             timer = System.currentTimeMillis();
 
@@ -112,7 +127,7 @@ public class sequenceTest extends LinearOpMode {
                     }
                 case 2:
                     follower.update();
-                    slideTarget = bestSampleInformation[1] + .5;
+                    slideTarget = bestSampleInformation[1];
                     intake.setDiffyAngle(bestSampleInformation[2]);
                     if (!follower.isBusy() && Math.abs(slideDelta) < 3.5) {
                         intakeCase++;
@@ -130,9 +145,15 @@ public class sequenceTest extends LinearOpMode {
                     if (timer + 100 < System.currentTimeMillis()) {
                         intake.setDiffy(servoPositions.clawDrop.getDifferential());
                         slideTarget = 0;
-                        intakeCase = 0;
+                        intakeCase++;
                     }
                 case 5:
+                    if (slideDelta > -1) {
+                        intakeCase = 0;
+                        intake.setKeepSlides(servoPositions.keepSlides.getPosition());
+                    }
+                    break;
+                case 6:
                     if (current.y && !last.y) intakeCase = 0;
                     drive.robotCentric(-current.left_stick_y, current.left_stick_x, -current.right_stick_x);
                     break;
@@ -142,12 +163,12 @@ public class sequenceTest extends LinearOpMode {
 
             slideDelta = intake.slideToCentimeter(slideTarget);
 
-            if (bestSampleInformation != null) {
-                telemetry.addData("x", bestSampleInformation[0]);
-                telemetry.addData("y", bestSampleInformation[1]);
-                telemetry.addData("angle", bestSampleInformation[2]);
-                telemetry.addData("delta", slideDelta);
-            }
+//            if (bestSampleInformation != null) {
+//                telemetry.addData("x", bestSampleInformation[0]);
+//                telemetry.addData("y", bestSampleInformation[1]);
+//                telemetry.addData("angle", bestSampleInformation[2]);
+//                telemetry.addData("delta", slideDelta);
+//            }
             telemetry.addData("case", intakeCase);
             telemetry.update();
         }

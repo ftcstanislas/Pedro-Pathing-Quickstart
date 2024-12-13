@@ -88,7 +88,7 @@ public class sequenceDrive extends LinearOpMode {
                     if (current.x && !last.x) {
                         bestSampleInformation = null;
                         currentDetections = sampleDetectionPipeline.getDetectedStones();
-                        bestSampleInformation = sampleDetectionPipeline.getBestSampleInformation(currentDetections, SampleDetectionPipeline.BLUE);
+                        bestSampleInformation = sampleDetectionPipeline.getBestSampleInformation(currentDetections);
                         if (bestSampleInformation != null) {
                             if (Math.abs(bestSampleInformation[0]) > 1.5) {
                                 sampleY = new Path(new BezierLine(new Point(0, 0, Point.CARTESIAN), new Point(0, -bestSampleInformation[0] / 2.54, Point.CARTESIAN)));

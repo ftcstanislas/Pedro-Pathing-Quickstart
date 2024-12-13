@@ -146,7 +146,7 @@ public class SampleDetectionPipeline extends OpenCvPipeline {
     Stage[] stages = Stage.values();
     int stageNum = 0;
     public Sample bestSample;
-
+    public Scalar desiredColor = YELLOW;
 
     @Override
     public void onViewportTapped() {
@@ -167,10 +167,8 @@ public class SampleDetectionPipeline extends OpenCvPipeline {
          * Run the image processing
          */
         findContours(input);
-        getBestSample(internalSampleList, RED);
-        if (bestSample != null) {
-            Imgproc.circle(input, bestSample.cameraPosition, 15, WHITE);
-        }
+        getBestSample(internalSampleList);
+        if (bestSample != null) if (bestSample.cameraPosition != null) Imgproc.circle(input, bestSample.cameraPosition, 15, WHITE);
         clientSampleList = new ArrayList<>(internalSampleList);
 
 
@@ -311,37 +309,30 @@ public class SampleDetectionPipeline extends OpenCvPipeline {
     /**
      *
      * @param sampleList
-     * @param color
      * @return
      */
-    public Sample getBestSample(ArrayList<SampleDetectionPipeline.Sample> sampleList, Scalar color) {
-        if (sampleList.isEmpty()) return null;
-        else {
-            bestSample = new Sample();
-            bestSample.score = -1E8;
+    public void getBestSample(ArrayList<SampleDetectionPipeline.Sample> sampleList) {
+        if (!sampleList.isEmpty()) {
+            bestSample = null;
             for (Sample sample : sampleList) {
-                //TODO: remove wrong colors
-    //            if (sample.color != color) {
-    //                sampleList.remove(sample);
-    //                break;
-    //            }
+                if (sample.color == desiredColor) {
+                    sample.inferY();
+                    sample.inferX();
+                    sample.inferAngle();
+                    sample.assignSamplePoints();
+                    if (bestSample == null) bestSample = sample;
+                    else if (sample.score > bestSample.score) bestSample = sample;
+                }
 
     //        sample.yFromBorder;
     //        sample.xFromBorder;
                 //TODO: if too close to border remove from sampleList
-
-                sample.inferY();
-                sample.inferX();
-                sample.inferAngle();
-                sample.assignSamplePoints();
-                if (sample.score > bestSample.score) bestSample = sample;
             }
-            return bestSample;
         }
     }
 
-    public double[] getBestSampleInformation(ArrayList<SampleDetectionPipeline.Sample> sampleList, Scalar color) {
-        bestSample = getBestSample(sampleList, color);
+    public double[] getBestSampleInformation(ArrayList<SampleDetectionPipeline.Sample> sampleList) {
+        getBestSample(sampleList);
         return new double[] {bestSample.actualX, bestSample.actualY, bestSample.grabAngle};
     }
 

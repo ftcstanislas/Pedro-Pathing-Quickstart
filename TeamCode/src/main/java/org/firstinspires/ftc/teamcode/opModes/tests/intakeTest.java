@@ -17,7 +17,7 @@ public class intakeTest extends LinearOpMode {
 
     double left = 0, right = 0, pos, power, delta;
 
-    public static int cm;
+    public static double cm;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -27,6 +27,7 @@ public class intakeTest extends LinearOpMode {
         waitForStart();
         if (isStopRequested()) return;
 
+        intake.setKeepSlides(servoPositions.releaseSlides.getPosition());
         while (opModeIsActive()) {
 //            right = -gamepad1.right_stick_y;
 //            if (gamepad1.dpad_down) {
@@ -50,6 +51,8 @@ public class intakeTest extends LinearOpMode {
 //            }
             if (gamepad1.a) intake.setKeepSlides(0);
             else if (gamepad1.b) intake.setKeepSlides(0.5);
+
+            delta = intake.slideToCentimeter(cm);
 
             telemetry.addData("Left", left);
             telemetry.addData("wristRight",right);
