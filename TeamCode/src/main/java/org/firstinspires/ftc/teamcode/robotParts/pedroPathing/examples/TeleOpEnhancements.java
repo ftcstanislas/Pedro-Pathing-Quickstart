@@ -47,7 +47,7 @@ public class TeleOpEnhancements extends OpMode {
         rightRear.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        follower.startTeleopDrive();
+        follower.startTeleOpDrive();
     }
 
     /**

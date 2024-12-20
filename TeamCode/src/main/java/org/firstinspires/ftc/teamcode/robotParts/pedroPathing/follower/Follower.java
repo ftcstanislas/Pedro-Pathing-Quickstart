@@ -68,7 +68,7 @@ public class Follower {
     private DcMotorEx rightRear;
     public List<DcMotorEx> motors;
 
-    private DriveVectorScaler driveVectorScaler;
+    private MecanumDriveVectorScaler mecanumDriveVectorScaler;
 
     private PoseUpdater poseUpdater;
     private DashboardPoseTracker dashboardPoseTracker;
@@ -156,10 +156,10 @@ public class Follower {
      * This initializes the follower.
      * In this, the DriveVectorScaler and PoseUpdater is instantiated, the MecanumDrivetrain.java motors are
      * initialized and their behavior is set, and the variables involved in approximating first and
-     * second derivatives for teleop are set.
+     * second derivatives for TeleOp are set.
      */
     public void initialize() {
-        driveVectorScaler = new DriveVectorScaler(FollowerConstants.frontLeftVector);
+        mecanumDriveVectorScaler = new MecanumDriveVectorScaler(FollowerConstants.frontLeftVector);
         poseUpdater = new PoseUpdater(hardwareMap);
 
         leftFront = hardwareMap.get(DcMotorEx.class, leftFrontMotorName);
@@ -418,9 +418,9 @@ public class Follower {
     }
 
     /**
-     * This starts teleop MecanumDrivetrain.java control.
+     * This starts TeleOp MecanumDrivetrain.java control.
      */
-    public void startTeleopDrive() {
+    public void startTeleOpDrive() {
         breakFollowing();
         teleopDrive = true;
     }
@@ -441,7 +441,7 @@ public class Follower {
                 if (holdingPosition) {
                     closestPose = currentPath.getClosestPoint(poseUpdater.getPose(), 1);
 
-                    drivePowers = driveVectorScaler.getDrivePowers(MathFunctions.scalarMultiplyVector(getTranslationalCorrection(), holdPointTranslationalScaling), MathFunctions.scalarMultiplyVector(getHeadingVector(), holdPointHeadingScaling), new Vector(), poseUpdater.getPose().getHeading());
+                    drivePowers = mecanumDriveVectorScaler.getDrivePowers(MathFunctions.scalarMultiplyVector(getTranslationalCorrection(), holdPointTranslationalScaling), MathFunctions.scalarMultiplyVector(getHeadingVector(), holdPointHeadingScaling), new Vector(), poseUpdater.getPose().getHeading());
 
                     limitDrivePowers();
 
@@ -454,7 +454,7 @@ public class Follower {
 
                         if (followingPathChain) updateCallbacks();
 
-                        drivePowers = driveVectorScaler.getDrivePowers(getCorrectiveVector(), getHeadingVector(), getDriveVector(), poseUpdater.getPose().getHeading());
+                        drivePowers = mecanumDriveVectorScaler.getDrivePowers(getCorrectiveVector(), getHeadingVector(), getDriveVector(), poseUpdater.getPose().getHeading());
 
                         limitDrivePowers();
 
@@ -498,7 +498,7 @@ public class Follower {
 
             calculateAveragedVelocityAndAcceleration();
 
-            drivePowers = driveVectorScaler.getDrivePowers(getCentripetalForceCorrection(), teleopHeadingVector, teleopDriveVector, poseUpdater.getPose().getHeading());
+            drivePowers = mecanumDriveVectorScaler.getDrivePowers(getCentripetalForceCorrection(), teleopHeadingVector, teleopDriveVector, poseUpdater.getPose().getHeading());
 
             limitDrivePowers();
 
@@ -770,7 +770,7 @@ public class Follower {
         Vector corrective = MathFunctions.addVectors(centripetal, translational);
 
         if (corrective.getMagnitude() > 1) {
-            return MathFunctions.addVectors(centripetal, MathFunctions.scalarMultiplyVector(translational, driveVectorScaler.findNormalizingScaling(centripetal, translational)));
+            return MathFunctions.addVectors(centripetal, MathFunctions.scalarMultiplyVector(translational, mecanumDriveVectorScaler.findNormalizingScaling(centripetal, translational)));
         }
 
         correctiveVector = MathFunctions.copyVector(corrective);

@@ -12,7 +12,7 @@ import org.firstinspires.ftc.teamcode.robotParts.pedroPathing.pathGeneration.Vec
  * @author Harrison Womack - 10158 Scott's Bots
  * @version 1.0, 3/4/2024
  */
-public class DriveVectorScaler {
+public class MecanumDriveVectorScaler {
     // This is ordered left front, left back, right front, right back. These are also normalized.
     private Vector[] mecanumVectors;
 
@@ -23,7 +23,7 @@ public class DriveVectorScaler {
      *
      * @param frontLeftVector this is the front left mecanum wheel's preferred MecanumDrivetrain.java vector.
      */
-    public DriveVectorScaler(Vector frontLeftVector) {
+    public MecanumDriveVectorScaler(Vector frontLeftVector) {
         Vector copiedFrontLeftVector = MathFunctions.normalizeVector(frontLeftVector);
         mecanumVectors = new Vector[]{
                 new Vector(copiedFrontLeftVector.getMagnitude(), copiedFrontLeftVector.getTheta()),
